@@ -1,5 +1,7 @@
 # Picar-X
 
+Intro to Robotics-2 PiCar project by Ashutosh Gupta.
+
 Picar-X Python library for Raspberry Pi.
 
 Quick Links:
