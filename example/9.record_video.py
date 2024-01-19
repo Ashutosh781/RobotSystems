@@ -18,7 +18,7 @@ def main():
     rec_flag = 'stop' # start,pause,stop
     vname = None
     username = os.getlogin()
-    
+
     Vilib.rec_video_set["path"] = f"/home/{username}/Videos/" # set path
 
     Vilib.camera_start(vflip=False,hflip=False)

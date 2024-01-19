@@ -1,12 +1,12 @@
 '''
     Cliff detection program for Picar-X:
 
-    Pay attention to modify the reference value of the grayscale module 
+    Pay attention to modify the reference value of the grayscale module
     according to the practical usage scenarios.
     Auto calibrate grayscale values:
         Please run ./calibration/grayscale_calibration.py
     Manual modification:
-        Use the following: 
+        Use the following:
             px.set_cliff_reference([200, 200, 200])
         The reference value be close to the middle of the line gray value
         and the background gray value.
@@ -42,7 +42,7 @@ if __name__=='__main__':
                 state = "safe"
                 px.stop()
             else:
-                state = "danger"   
+                state = "danger"
                 px.backward(80)
                 if last_state == "safe":
                     tts.say("danger")
@@ -55,4 +55,3 @@ if __name__=='__main__':
         sleep(0.1)
 
 
-                

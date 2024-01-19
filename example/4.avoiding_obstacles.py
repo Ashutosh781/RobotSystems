@@ -3,14 +3,14 @@ import time
 
 POWER = 50
 SafeDistance = 40   # > 40 safe
-DangerDistance = 20 # > 20 && < 40 turn around, 
+DangerDistance = 20 # > 20 && < 40 turn around,
                     # < 20 backward
 
 def main():
     try:
         px = Picarx()
         # px = Picarx(ultrasonic_pins=['D2','D3']) # tring, echo
-       
+
         while True:
             distance = round(px.ultrasonic.read(), 2)
             print("distance: ",distance)

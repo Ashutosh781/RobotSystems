@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from picarx import Picarx
 from time import sleep
-import readchar 
+import readchar
 
 manual = '''
 --------------- Picar-X Calibration Helper -----------------
@@ -14,8 +14,8 @@ manual = '''
     [5]: right motor                [E]: motors run/stop
 
     [SPACE]: confirm calibration                [Crtl+C]: quit
-                                      
-'''    
+
+'''
 
 px = Picarx()
 px_power = 30
@@ -64,7 +64,7 @@ def set_servos_offset(servo_num, value):
     elif servo_num == 1:
         px.cam_pan_cali_val = value
     elif servo_num == 2:
-        px.cam_tilt_cali_val  = value  
+        px.cam_tilt_cali_val  = value
 
 def servos_reset():
     for i in range(3):
@@ -73,11 +73,11 @@ def servos_reset():
 def show_info():
     print("\033[H\033[J", end='')  # clear terminal windows
     print(manual)
-    print('[ %s ] [ %s ]'%(servo_names[servo_num], motor_names[motor_num])) 
+    print('[ %s ] [ %s ]'%(servo_names[servo_num], motor_names[motor_num]))
     print('offset: %s, %s'%(servos_offset, motors_offset))
 
 
-def cali_helper(): 
+def cali_helper():
     global servo_num, motor_num
     global servos_cali, motors_cali, servos_offset, motors_offset
     motor_run = False
@@ -86,7 +86,7 @@ def cali_helper():
 
     # reset
     servos_reset()
-    # show_info 
+    # show_info
     show_info()
 
     # key control
@@ -94,7 +94,7 @@ def cali_helper():
         # readkey
         key = readchar.readkey()
         key = key.lower()
-        # select the servo 
+        # select the servo
         if key in ('123'):
             servo_num = int(key)-1
             show_info()
@@ -108,7 +108,7 @@ def cali_helper():
             servos_offset[servo_num] += step
             if servos_offset[servo_num] > 20:
                 servos_offset[servo_num] =20
-            servos_offset[servo_num] = round(servos_offset[servo_num], 2) 
+            servos_offset[servo_num] = round(servos_offset[servo_num], 2)
             show_info()
             set_servos_offset(servo_num, servos_offset[servo_num])
             servos_move(servo_num, 0)
@@ -116,12 +116,12 @@ def cali_helper():
             servos_offset[servo_num] -= step
             if servos_offset[servo_num] < -20:
                 servos_offset[servo_num] = -20
-            servos_offset[servo_num] = round(servos_offset[servo_num], 2) 
+            servos_offset[servo_num] = round(servos_offset[servo_num], 2)
             show_info()
             set_servos_offset(servo_num, servos_offset[servo_num])
             servos_move(servo_num, 0)
         # motors move
-        elif key == 'q': 
+        elif key == 'q':
             motors_offset[motor_num] = -1 * motors_offset[motor_num]
             px.cali_dir_value = list.copy(motors_offset)
             motor_run = True
@@ -152,8 +152,8 @@ def cali_helper():
                     break
                 elif key == 'n':
                     show_info()
-                    break   
-                sleep(0.01) 
+                    break
+                sleep(0.01)
         sleep(0.01)
 
 

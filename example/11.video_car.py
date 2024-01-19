@@ -18,7 +18,7 @@ Press key to call the function(non-case sensitive):
 
     O: speed up
     P: speed down
-    W: forward  
+    W: forward
     S: backward
     A: turn left
     D: turn right
@@ -42,7 +42,7 @@ def take_photo():
 def move(operate:str, speed):
 
     if operate == 'stop':
-        px.stop()  
+        px.stop()
     else:
         if operate == 'forward':
             px.set_dir_servo_angle(0)
@@ -56,7 +56,7 @@ def move(operate:str, speed):
         elif operate == 'turn right':
             px.set_dir_servo_angle(30)
             px.forward(speed)
-        
+
 
 
 def main():
@@ -67,17 +67,17 @@ def main():
     Vilib.display(local=True,web=True)
     sleep(2)  # wait for startup
     print(manual)
-    
+
     while True:
         print("\rstatus: %s , speed: %s    "%(status, speed), end='', flush=True)
         # readkey
         key = readchar.readkey().lower()
-        # operation 
+        # operation
         if key in ('wsadfop'):
             # throttle
             if key == 'o':
                 if speed <=90:
-                    speed += 10           
+                    speed += 10
             elif key == 'p':
                 if speed >=10:
                     speed -= 10
@@ -89,7 +89,7 @@ def main():
                     speed = 10
                 if key == 'w':
                     # Speed limit when reversing,avoid instantaneous current too large
-                    if status != 'forward' and speed > 60:  
+                    if status != 'forward' and speed > 60:
                         speed = 60
                     status = 'forward'
                 elif key == 'a':
@@ -99,12 +99,12 @@ def main():
                         speed = 60
                     status = 'backward'
                 elif key == 'd':
-                    status = 'turn right' 
+                    status = 'turn right'
             # stop
             elif key == 'f':
                 status = 'stop'
-            # move 
-            move(status, speed)  
+            # move
+            move(status, speed)
         # take photo
         elif key == 't':
             take_photo()
@@ -113,7 +113,7 @@ def main():
             print('\nquit ...')
             px.stop()
             Vilib.camera_close()
-            break 
+            break
 
         sleep(0.1)
 
@@ -121,11 +121,10 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception as e:    
+    except Exception as e:
         print("error:%s"%e)
     finally:
         px.stop()
         Vilib.camera_close()
 
 
-        

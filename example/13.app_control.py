@@ -38,7 +38,7 @@ music = Music()
 if os.geteuid() != 0:
     print('\033[33mPlay sound needs to be run with sudo.\033[m')
 
-def horn(): 
+def horn():
     _status, _result = utils.run_command('sudo killall pulseaudio')
     music.sound_play_threading(f'{UserHome}/picar-x/sounds/car-double-horn.wav')
 
@@ -54,7 +54,7 @@ def avoid_obstacles():
     else:
         px.set_dir_servo_angle(-30)
         px.backward(AVOID_OBSTACLES_SPEED)
-        sleep(0.5) 
+        sleep(0.5)
 
 def get_status(val_list):
     _state = px.get_line_status(val_list)  # [bool, bool, bool], 0 means line, 1 means background
@@ -93,13 +93,13 @@ def line_track():
 
     if gm_state == 'forward':
         px.set_dir_servo_angle(0)
-        px.forward(LINE_TRACK_SPEED) 
+        px.forward(LINE_TRACK_SPEED)
     elif gm_state == 'left':
         px.set_dir_servo_angle(LINE_TRACK_ANGLE_OFFSET)
-        px.forward(LINE_TRACK_SPEED) 
+        px.forward(LINE_TRACK_SPEED)
     elif gm_state == 'right':
         px.set_dir_servo_angle(-LINE_TRACK_ANGLE_OFFSET)
-        px.forward(LINE_TRACK_SPEED) 
+        px.forward(LINE_TRACK_SPEED)
     else:
         outHandle()
 
@@ -159,7 +159,7 @@ def main():
             line_track()
         elif avoid_obstacles_switch == True:
             avoid_obstacles()
-    
+
         # joystick moving
         if line_track_switch != True and avoid_obstacles_switch != True:
             Joystick_K_Val = sc.get('K')
@@ -190,12 +190,12 @@ def main():
             Vilib.color_detect_switch(False)
 
         if sc.get('O') == True:
-            Vilib.human_detect_switch(True)  
+            Vilib.human_detect_switch(True)
         else:
-            Vilib.human_detect_switch(False)  
+            Vilib.human_detect_switch(False)
 
         if sc.get('P') == True:
-            Vilib.object_detect_switch(True) 
+            Vilib.object_detect_switch(True)
         else:
             Vilib.object_detect_switch(False)
 

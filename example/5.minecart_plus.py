@@ -1,12 +1,12 @@
 '''
     Line Following program for Picar-X:
 
-    Pay attention to modify the reference value of the grayscale module 
+    Pay attention to modify the reference value of the grayscale module
     according to the practical usage scenarios.
     Auto calibrate grayscale values:
         Please run ./calibration/grayscale_calibration.py
     Manual modification:
-        Use the following: 
+        Use the following:
             px.set_line_reference([1400, 1400, 1400])
         The reference value be close to the middle of the line gray value
         and the background gray value.
@@ -67,13 +67,13 @@ if __name__=='__main__':
 
             if gm_state == 'forward':
                 px.set_dir_servo_angle(0)
-                px.forward(px_power) 
+                px.forward(px_power)
             elif gm_state == 'left':
                 px.set_dir_servo_angle(offset)
-                px.forward(px_power) 
+                px.forward(px_power)
             elif gm_state == 'right':
                 px.set_dir_servo_angle(-offset)
-                px.forward(px_power) 
+                px.forward(px_power)
             else:
                 outHandle()
     finally:

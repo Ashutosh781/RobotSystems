@@ -1,7 +1,7 @@
 from picarx import Picarx
 import time
 import threading
-import readchar 
+import readchar
 import os
 
 px = Picarx()

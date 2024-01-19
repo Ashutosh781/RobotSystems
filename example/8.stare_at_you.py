@@ -17,7 +17,7 @@ def main():
         if Vilib.detect_obj_parameter['human_n']!=0:
             coordinate_x = Vilib.detect_obj_parameter['human_x']
             coordinate_y = Vilib.detect_obj_parameter['human_y']
-            
+
             # change the pan-tilt angle for track the object
             x_angle +=(coordinate_x*10/640)-5
             x_angle = clamp_number(x_angle,-35,35)
@@ -37,8 +37,8 @@ def main():
 if __name__ == "__main__":
     try:
        main()
-    
-    
+
+
     finally:
         px.stop()
         print("stop and exit")
