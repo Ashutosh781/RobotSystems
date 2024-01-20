@@ -1,7 +1,27 @@
-from robot_hat import Pin, ADC, PWM, Servo, fileDB
-from robot_hat import Grayscale_Module, Ultrasonic, utils
 import time
 import os
+import math
+
+try:
+    from robot_hat import Pin, ADC, PWM, Servo, fileDB
+    from robot_hat import Grayscale_Module, Ultrasonic, utils
+    from robot_hat.utils import reset_mcu, run_command
+except ImportError:
+    from sim_robot_hat import Pin, ADC, PWM, Servo, fileDB
+    from sim_robot_hat import Grayscale_Module, Ultrasonic
+    from sim_robot_hat import reset_mcu, run_command
+
+import logging
+import atexit
+
+reset_mcu()
+time.sleep(0.2)
+
+logging_format = "%(asctime)s: %(message)s"
+logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%H:%M:%S")
+logging.getLogger().setLevel(logging.DEBUG)
+
+# Example: logging.debug("message")
 
 
 def constrain(x, min_val, max_val):
@@ -92,6 +112,9 @@ class Picarx(object):
         tring, echo= ultrasonic_pins
         self.ultrasonic = Ultrasonic(Pin(tring), Pin(echo))
 
+        # --------- atexit ---------
+        atexit.register(self.stop)
+
     def set_motor_speed(self, motor, speed):
         ''' set motor speed
 
@@ -146,11 +169,6 @@ class Picarx(object):
         self.config_flie.set("picarx_dir_servo", "%s"%value)
         self.dir_servo_pin.angle(value)
 
-    def set_dir_servo_angle(self, value):
-        self.dir_current_angle = constrain(value, self.DIR_MIN, self.DIR_MAX)
-        angle_value  = self.dir_current_angle + self.dir_cali_val
-        self.dir_servo_pin.angle(angle_value)
-
     def cam_pan_servo_calibrate(self, value):
         self.cam_pan_cali_val = value
         self.config_flie.set("picarx_cam_pan_servo", "%s"%value)
@@ -160,6 +178,11 @@ class Picarx(object):
         self.cam_tilt_cali_val = value
         self.config_flie.set("picarx_cam_tilt_servo", "%s"%value)
         self.cam_tilt.angle(value)
+
+    def set_dir_servo_angle(self, value):
+        self.dir_current_angle = constrain(value, self.DIR_MIN, self.DIR_MAX)
+        angle_value  = self.dir_current_angle + self.dir_cali_val
+        self.dir_servo_pin.angle(angle_value)
 
     def set_cam_pan_angle(self, value):
         value = constrain(value, self.CAM_PAN_MIN, self.CAM_PAN_MAX)
@@ -207,15 +230,6 @@ class Picarx(object):
             self.set_motor_speed(1, speed)
             self.set_motor_speed(2, -1*speed)
 
-    def stop(self):
-        '''
-        Execute twice to make sure it stops
-        '''
-        for _ in range(2):
-            self.motor_speed_pins[0].pulse_width_percent(0)
-            self.motor_speed_pins[1].pulse_width_percent(0)
-            time.sleep(0.002)
-
     def get_distance(self):
         return self.ultrasonic.read()
 
@@ -248,6 +262,16 @@ class Picarx(object):
             self.config_flie.set("cliff_reference", self.cliff_reference)
         else:
             raise ValueError("grayscale reference must be a 1*3 list")
+
+    def stop(self):
+        '''
+        Execute twice to make sure it stops
+        '''
+        for _ in range(2):
+            self.motor_speed_pins[0].pulse_width_percent(0)
+            self.motor_speed_pins[1].pulse_width_percent(0)
+            time.sleep(0.002)
+
 
 if __name__ == "__main__":
     px = Picarx()
