@@ -31,11 +31,23 @@ def constrain(x, min_val, max_val):
     return max(min_val, min(max_val, x))
 
 class Picarx(object):
+    '''
+    A class to control picar-x
+    Attributes:
+        servo_pins: camera_pan_servo, camera_tilt_servo, direction_servo
+        motor_pins: left_switch, right_switch, left_pwm, right_pwm
+        grayscale_pins: 3 adc channels
+        ultrasonic_pins: tring, echo2
+        config: path of config file
+    '''
+
+    # Config file path
     CONFIG = '/opt/picar-x/picar-x.conf'
 
     DEFAULT_LINE_REF = [1000, 1000, 1000]
     DEFAULT_CLIFF_REF = [500, 500, 500]
 
+    # Servo angle limits
     DIR_MIN = -30
     DIR_MAX = 30
     CAM_PAN_MIN = -90
@@ -43,15 +55,14 @@ class Picarx(object):
     CAM_TILT_MIN = -35
     CAM_TILT_MAX = 65
 
+    # Speed limits
+    MIN_SPEED = -100
+    MAX_SPEED = 100
+
     PERIOD = 4095
     PRESCALER = 10
     TIMEOUT = 0.02
 
-    # servo_pins: camera_pan_servo, camera_tilt_servo, direction_servo
-    # motor_pins: left_switch, right_switch, left_pwm, right_pwm
-    # grayscale_pins: 3 adc channels
-    # ultrasonic_pins: tring, echo2
-    # config: path of config file
     def __init__(self,
                 servo_pins:list=['P0', 'P1', 'P2'],
                 motor_pins:list=['D4', 'D5', 'P12', 'P13'],
@@ -115,31 +126,6 @@ class Picarx(object):
         # --------- atexit ---------
         atexit.register(self.stop)
 
-    def set_motor_speed(self, motor, speed):
-        ''' set motor speed
-
-        param motor: motor index, 1 means left motor, 2 means right motor
-        type motor: int
-        param speed: speed
-        type speed: int
-        '''
-        speed = constrain(speed, -100, 100)
-        motor -= 1
-        if speed >= 0:
-            direction = 1 * self.cali_dir_value[motor]
-        elif speed < 0:
-            direction = -1 * self.cali_dir_value[motor]
-        speed = abs(speed)
-        if speed != 0:
-            speed = int(speed /2 ) + 50
-        speed = speed - self.cali_speed_value[motor]
-        if direction < 0:
-            self.motor_direction_pins[motor].high()
-            self.motor_speed_pins[motor].pulse_width_percent(speed)
-        else:
-            self.motor_direction_pins[motor].low()
-            self.motor_speed_pins[motor].pulse_width_percent(speed)
-
     def motor_speed_calibration(self, value):
         self.cali_speed_value = value
         if value < 0:
@@ -179,6 +165,34 @@ class Picarx(object):
         self.config_flie.set("picarx_cam_tilt_servo", "%s"%value)
         self.cam_tilt.angle(value)
 
+    def set_motor_speed(self, motor, speed):
+        ''' set motor speed
+
+        param motor: motor index, 1 means left motor, 2 means right motor
+        type motor: int
+        param speed: speed
+        type speed: int
+        '''
+        speed = constrain(speed, self.MIN_SPEED, self.MAX_SPEED)
+        motor -= 1
+        if speed >= 0:
+            direction = 1 * self.cali_dir_value[motor]
+        elif speed < 0:
+            direction = -1 * self.cali_dir_value[motor]
+        speed = abs(speed)
+
+        # Speed scaling to compensate for friction
+        # if speed != 0:
+        #     speed = int(speed /2 ) + 50
+
+        speed = speed - self.cali_speed_value[motor]
+        if direction < 0:
+            self.motor_direction_pins[motor].high()
+            self.motor_speed_pins[motor].pulse_width_percent(speed)
+        else:
+            self.motor_direction_pins[motor].low()
+            self.motor_speed_pins[motor].pulse_width_percent(speed)
+
     def set_dir_servo_angle(self, value):
         self.dir_current_angle = constrain(value, self.DIR_MIN, self.DIR_MAX)
         angle_value  = self.dir_current_angle + self.dir_cali_val
@@ -204,13 +218,13 @@ class Picarx(object):
                 abs_current_angle = self.DIR_MAX
             power_scale = (100 - abs_current_angle) / 100.0
             if (current_angle / abs_current_angle) > 0:
-                self.set_motor_speed(1, -1*speed)
+                self.set_motor_speed(1, -speed)
                 self.set_motor_speed(2, speed * power_scale)
             else:
-                self.set_motor_speed(1, -1*speed * power_scale)
+                self.set_motor_speed(1, -speed * power_scale)
                 self.set_motor_speed(2, speed )
         else:
-            self.set_motor_speed(1, -1*speed)
+            self.set_motor_speed(1, -speed)
             self.set_motor_speed(2, speed)
 
     def forward(self, speed):
@@ -221,17 +235,20 @@ class Picarx(object):
                 abs_current_angle = self.DIR_MAX
             power_scale = (100 - abs_current_angle) / 100.0
             if (current_angle / abs_current_angle) > 0:
-                self.set_motor_speed(1, 1*speed * power_scale)
+                self.set_motor_speed(1, speed * power_scale)
                 self.set_motor_speed(2, -speed)
             else:
                 self.set_motor_speed(1, speed)
-                self.set_motor_speed(2, -1*speed * power_scale)
+                self.set_motor_speed(2, -speed * power_scale)
         else:
             self.set_motor_speed(1, speed)
-            self.set_motor_speed(2, -1*speed)
+            self.set_motor_speed(2, -speed)
 
     def get_distance(self):
         return self.ultrasonic.read()
+
+    def get_grayscale_data(self):
+        return list.copy(self.grayscale.read())
 
     def set_grayscale_reference(self, value):
         if isinstance(value, list) and len(value) == 3:
@@ -240,9 +257,6 @@ class Picarx(object):
             self.config_flie.set("line_reference", self.line_reference)
         else:
             raise ValueError("grayscale reference must be a 1*3 list")
-
-    def get_grayscale_data(self):
-        return list.copy(self.grayscale.read())
 
     def get_line_status(self,gm_val_list):
         return self.grayscale.read_status(gm_val_list)
@@ -275,6 +289,8 @@ class Picarx(object):
 
 if __name__ == "__main__":
     px = Picarx()
+    px.set_dir_servo_angle(0)
+    time.sleep(1)
     px.forward(50)
     time.sleep(1)
     px.stop()
