@@ -56,7 +56,7 @@ class Picarx(object):
 
     # Car dimensions (meters)
     WHEEL_BASE = 0.1
-    TRACK_WIDTH = 0.1
+    TRACK_WIDTH = 0.12
 
     PERIOD = 4095
     PRESCALER = 10
@@ -125,7 +125,7 @@ class Picarx(object):
         # --------- atexit ---------
         atexit.register(self.stop)
 
-    def constrain(x, min_val, max_val):
+    def constrain(self, x, min_val, max_val):
         '''
         Constrains value to be within a range.
         '''
@@ -184,6 +184,9 @@ class Picarx(object):
         angle_R = np.arctan((self.WHEEL_BASE * np.tan(angle)) / (self.WHEEL_BASE - 0.5 * self.TRACK_WIDTH * np.tan(angle)))
         scale_R = np.cos(angle_R) / np.cos(angle)
 
+        # Logging
+        # logging.debug(f"Left ratio: {scale_L} | Right ratio: {scale_R}")
+
         return scale_L, scale_R
 
     def set_motor_speed(self, motor, speed):
@@ -214,6 +217,9 @@ class Picarx(object):
             self.motor_direction_pins[motor].low()
             self.motor_speed_pins[motor].pulse_width_percent(speed)
 
+        # Logging
+        # logging.debug(f"Motor {motor + 1} | Speed: {speed}")
+
     def set_dir_servo_angle(self, value):
         self.dir_current_angle = self.constrain(value, self.DIR_MIN, self.DIR_MAX)
         angle_value  = self.dir_current_angle + self.dir_cali_val
@@ -239,19 +245,18 @@ class Picarx(object):
                 abs_current_angle = self.DIR_MAX
 
             # Linearly scale power based on angle
-            power_scale = (100 - abs_current_angle) / 100.0
-
-            # Ackerman steering based power scaling
-            scale_L, scale_R = self.get_ackerman_ratio(current_angle)
-
             if not is_ackerman:
+                power_scale = (100 - abs_current_angle) / 100.0
                 if (current_angle / abs_current_angle) > 0:
                     self.set_motor_speed(1, -speed)
                     self.set_motor_speed(2, speed * power_scale)
                 else:
                     self.set_motor_speed(1, -speed * power_scale)
                     self.set_motor_speed(2, speed )
+
+            # Ackerman steering based power scaling
             else:
+                scale_L, scale_R = self.get_ackerman_ratio(current_angle)
                 if (current_angle / abs_current_angle) > 0:
                     self.set_motor_speed(1, -speed * scale_L)
                     self.set_motor_speed(2, speed * scale_R)
@@ -270,19 +275,18 @@ class Picarx(object):
                 abs_current_angle = self.DIR_MAX
 
             # Linearly scale power based on angle
-            power_scale = (100 - abs_current_angle) / 100.0
-
-            # Ackerman steering based power scaling
-            scale_L, scale_R = self.get_ackerman_ratio(current_angle)
-
             if not is_ackerman:
+                power_scale = (100 - abs_current_angle) / 100.0
                 if (current_angle / abs_current_angle) > 0:
                     self.set_motor_speed(1, speed * power_scale)
                     self.set_motor_speed(2, -speed)
                 else:
                     self.set_motor_speed(1, speed)
                     self.set_motor_speed(2, -speed * power_scale)
+
+            # Ackerman steering based power scaling
             else:
+                scale_L, scale_R = self.get_ackerman_ratio(current_angle)
                 if (current_angle / abs_current_angle) > 0:
                     self.set_motor_speed(1, speed * scale_L)
                     self.set_motor_speed(2, -speed * scale_R)
