@@ -1,6 +1,7 @@
 import time
 import os
 import math
+import numpy as np
 
 try:
     from robot_hat import Pin, ADC, PWM, Servo, fileDB
@@ -24,12 +25,6 @@ logging.getLogger().setLevel(logging.DEBUG)
 # Example: logging.debug("message")
 
 
-def constrain(x, min_val, max_val):
-    '''
-    Constrains value to be within a range.
-    '''
-    return max(min_val, min(max_val, x))
-
 class Picarx(object):
     '''
     A class to control picar-x
@@ -47,7 +42,7 @@ class Picarx(object):
     DEFAULT_LINE_REF = [1000, 1000, 1000]
     DEFAULT_CLIFF_REF = [500, 500, 500]
 
-    # Servo angle limits
+    # Servo angle limits (degrees)
     DIR_MIN = -30
     DIR_MAX = 30
     CAM_PAN_MIN = -90
@@ -58,6 +53,10 @@ class Picarx(object):
     # Speed limits
     MIN_SPEED = -100
     MAX_SPEED = 100
+
+    # Car dimensions (meters)
+    WHEEL_BASE = 0.1
+    TRACK_WIDTH = 0.1
 
     PERIOD = 4095
     PRESCALER = 10
@@ -126,6 +125,12 @@ class Picarx(object):
         # --------- atexit ---------
         atexit.register(self.stop)
 
+    def constrain(x, min_val, max_val):
+        '''
+        Constrains value to be within a range.
+        '''
+        return max(min_val, min(max_val, x))
+
     def motor_speed_calibration(self, value):
         self.cali_speed_value = value
         if value < 0:
@@ -165,6 +170,22 @@ class Picarx(object):
         self.config_flie.set("picarx_cam_tilt_servo", "%s"%value)
         self.cam_tilt.angle(value)
 
+    def get_ackerman_ratio(self, angle):
+        ''' computes the ackerman steering power ratio for a given angle '''
+
+        # Convert angle to radians
+        angle = np.radians(angle)
+
+        # Ackeran steering angle for left wheel
+        angle_L = np.arctan((self.WHEEL_BASE * np.tan(angle)) / (self.WHEEL_BASE + 0.5 * self.TRACK_WIDTH * np.tan(angle)))
+        scale_L = np.cos(angle_L) / np.cos(angle)
+
+        # Ackeran steering angle for right wheel
+        angle_R = np.arctan((self.WHEEL_BASE * np.tan(angle)) / (self.WHEEL_BASE - 0.5 * self.TRACK_WIDTH * np.tan(angle)))
+        scale_R = np.cos(angle_R) / np.cos(angle)
+
+        return scale_L, scale_R
+
     def set_motor_speed(self, motor, speed):
         ''' set motor speed
 
@@ -173,7 +194,7 @@ class Picarx(object):
         param speed: speed
         type speed: int
         '''
-        speed = constrain(speed, self.MIN_SPEED, self.MAX_SPEED)
+        speed = self.constrain(speed, self.MIN_SPEED, self.MAX_SPEED)
         motor -= 1
         if speed >= 0:
             direction = 1 * self.cali_dir_value[motor]
@@ -194,52 +215,80 @@ class Picarx(object):
             self.motor_speed_pins[motor].pulse_width_percent(speed)
 
     def set_dir_servo_angle(self, value):
-        self.dir_current_angle = constrain(value, self.DIR_MIN, self.DIR_MAX)
+        self.dir_current_angle = self.constrain(value, self.DIR_MIN, self.DIR_MAX)
         angle_value  = self.dir_current_angle + self.dir_cali_val
         self.dir_servo_pin.angle(angle_value)
 
     def set_cam_pan_angle(self, value):
-        value = constrain(value, self.CAM_PAN_MIN, self.CAM_PAN_MAX)
+        value = self.constrain(value, self.CAM_PAN_MIN, self.CAM_PAN_MAX)
         self.cam_pan.angle(-1*(value + -1*self.cam_pan_cali_val))
 
     def set_cam_tilt_angle(self,value):
-        value = constrain(value, self.CAM_TILT_MIN, self.CAM_TILT_MAX)
+        value = self.constrain(value, self.CAM_TILT_MIN, self.CAM_TILT_MAX)
         self.cam_tilt.angle(-1*(value + -1*self.cam_tilt_cali_val))
 
     def set_power(self, speed):
         self.set_motor_speed(1, speed)
         self.set_motor_speed(2, speed)
 
-    def backward(self, speed):
+    def backward(self, speed, is_ackerman=False):
         current_angle = self.dir_current_angle
         if current_angle != 0:
             abs_current_angle = abs(current_angle)
             if abs_current_angle > self.DIR_MAX:
                 abs_current_angle = self.DIR_MAX
+
+            # Linearly scale power based on angle
             power_scale = (100 - abs_current_angle) / 100.0
-            if (current_angle / abs_current_angle) > 0:
-                self.set_motor_speed(1, -speed)
-                self.set_motor_speed(2, speed * power_scale)
+
+            # Ackerman steering based power scaling
+            scale_L, scale_R = self.get_ackerman_ratio(current_angle)
+
+            if not is_ackerman:
+                if (current_angle / abs_current_angle) > 0:
+                    self.set_motor_speed(1, -speed)
+                    self.set_motor_speed(2, speed * power_scale)
+                else:
+                    self.set_motor_speed(1, -speed * power_scale)
+                    self.set_motor_speed(2, speed )
             else:
-                self.set_motor_speed(1, -speed * power_scale)
-                self.set_motor_speed(2, speed )
+                if (current_angle / abs_current_angle) > 0:
+                    self.set_motor_speed(1, -speed * scale_L)
+                    self.set_motor_speed(2, speed * scale_R)
+                else:
+                    self.set_motor_speed(1, -speed * scale_L)
+                    self.set_motor_speed(2, speed * scale_R)
         else:
             self.set_motor_speed(1, -speed)
             self.set_motor_speed(2, speed)
 
-    def forward(self, speed):
+    def forward(self, speed, is_ackerman=False):
         current_angle = self.dir_current_angle
         if current_angle != 0:
             abs_current_angle = abs(current_angle)
             if abs_current_angle > self.DIR_MAX:
                 abs_current_angle = self.DIR_MAX
+
+            # Linearly scale power based on angle
             power_scale = (100 - abs_current_angle) / 100.0
-            if (current_angle / abs_current_angle) > 0:
-                self.set_motor_speed(1, speed * power_scale)
-                self.set_motor_speed(2, -speed)
+
+            # Ackerman steering based power scaling
+            scale_L, scale_R = self.get_ackerman_ratio(current_angle)
+
+            if not is_ackerman:
+                if (current_angle / abs_current_angle) > 0:
+                    self.set_motor_speed(1, speed * power_scale)
+                    self.set_motor_speed(2, -speed)
+                else:
+                    self.set_motor_speed(1, speed)
+                    self.set_motor_speed(2, -speed * power_scale)
             else:
-                self.set_motor_speed(1, speed)
-                self.set_motor_speed(2, -speed * power_scale)
+                if (current_angle / abs_current_angle) > 0:
+                    self.set_motor_speed(1, speed * scale_L)
+                    self.set_motor_speed(2, -speed * scale_R)
+                else:
+                    self.set_motor_speed(1, speed * scale_L)
+                    self.set_motor_speed(2, -speed * scale_R)
         else:
             self.set_motor_speed(1, speed)
             self.set_motor_speed(2, -speed)
