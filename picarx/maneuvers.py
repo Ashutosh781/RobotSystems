@@ -30,7 +30,12 @@ class Maneuvers(Picarx):
         self.backward(speed, is_ackerman=True)
 
     def drive_steer(self, speed, angle):
-        '''Drive forward or backward with a given speed and angle'''
+        '''Drive forward or backward with a given speed and angle
+
+        Args:
+            speed: ratio [-100, 100] (negative for backward)
+            angle: degrees [-30, 30] (negative for left)
+        '''
 
         # Call the appropriate function based on the speed
         if speed >= 0:
@@ -39,7 +44,11 @@ class Maneuvers(Picarx):
             self.backward_with_angle(abs(speed), angle)
 
     def parallel_park(self, park_to='l'):
-        '''Parallel park in either direction'''
+        '''Parallel park in either direction
+
+        Args:
+            park_to: 'l' or 'r' (default 'l')
+        '''
 
         # Speed and angle for parallel parking
         speed = 30
@@ -71,7 +80,11 @@ class Maneuvers(Picarx):
         self.stop()
 
     def three_point_turn(self, turn_to='l'):
-        '''Three point turn in either direction'''
+        '''Three point turn in either direction
+
+        Args:
+            turn_to: 'l' or 'r' (default 'l')
+        '''
 
         # Speed and angle for three point turn
         speed = 30
