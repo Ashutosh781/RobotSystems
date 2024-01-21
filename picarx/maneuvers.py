@@ -5,6 +5,10 @@ from picarx_improved import Picarx
 class Maneuvers(Picarx):
     '''Class for performing maneuvers with the PiCar-X'''
 
+    # Constants for safe speed and angle for maneuvers
+    SAFE_SPEED = 30
+    SAFE_ANGLE = 20
+
     def __init__(self):
         super().__init__()
 
@@ -50,30 +54,26 @@ class Maneuvers(Picarx):
             park_to: 'l' or 'r' (default 'l')
         '''
 
-        # Speed and angle for parallel parking
-        speed = 30
-        angle = 20
-
         # Set the direction of parking
         if park_to == 'l':
-            angle = -angle
+            direction = -1
         elif park_to == 'r':
-            angle = angle
+            direction = 1
 
         # Drive forward
-        self.drive_steer(speed, 0)
+        self.drive_steer(self.SAFE_SPEED, 0)
         time.sleep(1)
 
         # Drive backward and turn into the parking spot
-        self.drive_steer(-speed, angle)
+        self.drive_steer(-self.SAFE_SPEED, direction * self.SAFE_ANGLE)
         time.sleep(2)
 
         # Drive backward and straighten the heading
-        self.drive_steer(-speed, -angle)
+        self.drive_steer(-self.SAFE_SPEED, -direction * self.SAFE_ANGLE)
         time.sleep(2)
 
         # Straighten the wheels
-        self.drive_steer(-speed, 0)
+        self.drive_steer(-self.SAFE_SPEED, 0)
         time.sleep(0.25)
 
         # Stop
@@ -86,26 +86,22 @@ class Maneuvers(Picarx):
             turn_to: 'l' or 'r' (default 'l')
         '''
 
-        # Speed and angle for three point turn
-        speed = 30
-        angle = 20
-
         # Set the direction of turning
         if turn_to == 'l':
-            angle = -angle
+            direction = -1
         elif turn_to == 'r':
-            angle = angle
+            direction = 1
 
         # Drive forward and turn to direction
-        self.drive_steer(speed, angle)
+        self.drive_steer(self.SAFE_SPEED, direction * self.SAFE_ANGLE)
         time.sleep(4)
 
         # Drive backward and turn to opposite direction
-        self.drive_steer(-speed, -angle)
+        self.drive_steer(-self.SAFE_SPEED, -direction * self.SAFE_ANGLE)
         time.sleep(4.5)
 
         # Drive forward and straight
-        self.drive_steer(speed, 0)
+        self.drive_steer(self.SAFE_SPEED, 0)
         time.sleep(4)
 
         # Stop
@@ -115,7 +111,7 @@ class Maneuvers(Picarx):
 if __name__ == '__main__':
 
     # Variables for testing
-    speed = 30 # ratio [-100, 100]
+    speed = 50 # ratio [-100, 100]
     angle = 15 # degrees [-30, 30]
     park_to = 'r' # 'l' or 'r'
     turn_to = 'l' # 'l' or 'r'
