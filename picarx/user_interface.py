@@ -18,6 +18,7 @@ Press keys on keyboard to control PiCar-X!
     Robot will execute a maneuver until either the maneuver is complete or the robot is stopped.
     For safety reasons, keep the Stop key (x) close at hand.
     For best and safe results, explicit speed and angle values are used for each maneuver, and not controlled by the user.
+    For complex maneuvers, parallel parking and three point turn, the robot will execute the maneuver completely, before accepting another command.
 '''
 
 def show_info():
@@ -80,5 +81,5 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         robot.stop()
-        time.sleep(1)
+        time.sleep(0.25)
         print("Program Ended")
