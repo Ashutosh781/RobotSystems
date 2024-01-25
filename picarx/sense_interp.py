@@ -31,4 +31,11 @@ class Interpret(Sensing):
 if __name__ == "__main__":
 
     sense = Sensing()
-    sense.get_grayscale()
+
+    try:
+        while True:
+            sense.get_grayscale()
+            time.sleep(1)
+    except KeyboardInterrupt:
+        sense.stop()
+        print("Program stopped by User")
