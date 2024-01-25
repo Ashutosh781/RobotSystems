@@ -12,9 +12,6 @@ class Maneuvers(Picarx):
     def __init__(self):
         super().__init__()
 
-        # Set the direction servo to the center position
-        self.set_dir_servo_angle(0)
-
     def forward_with_angle(self, speed, angle):
         '''Drive forward with a given speed and angle'''
 

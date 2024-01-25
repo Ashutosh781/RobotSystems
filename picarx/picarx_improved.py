@@ -5,7 +5,7 @@ import numpy as np
 
 try:
     from robot_hat import Pin, ADC, PWM, Servo, fileDB
-    from robot_hat import Grayscale_Module, Ultrasonic, utils
+    from robot_hat import Grayscale_Module, Ultrasonic
     from robot_hat.utils import reset_mcu, run_command
 except ImportError:
     from sim_robot_hat import Pin, ADC, PWM, Servo, fileDB
@@ -71,7 +71,7 @@ class Picarx(object):
                 ):
 
         # reset robot_hat
-        utils.reset_mcu()
+        reset_mcu()
         time.sleep(0.2)
 
         # --------- config_flie ---------
@@ -115,8 +115,10 @@ class Picarx(object):
         self.line_reference = [float(i) for i in self.line_reference.strip().strip('[]').split(',')]
         self.cliff_reference = self.config_flie.get("cliff_reference", default_value=str(self.DEFAULT_CLIFF_REF))
         self.cliff_reference = [float(i) for i in self.cliff_reference.strip().strip('[]').split(',')]
+
+        #* Doubtful
         # transfer reference
-        self.grayscale.reference(self.line_reference)
+        # self.grayscale.reference(self.line_reference)
 
         # --------- ultrasonic init ---------
         tring, echo= ultrasonic_pins
@@ -124,6 +126,16 @@ class Picarx(object):
 
         # --------- atexit ---------
         atexit.register(self.stop)
+
+        # --------- intialize servos ---------
+        self.zeros_servos()
+
+    def zeros_servos(self):
+        '''Set all servos to 0 degrees'''
+
+        self.set_dir_servo_angle(0)
+        self.set_cam_pan_angle(0)
+        self.set_cam_tilt_angle(0)
 
     def constrain(self, x, min_val, max_val):
         '''

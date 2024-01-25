@@ -18,11 +18,11 @@ timer = [
 class _Basic_class(object):
     _class_name = '_Basic_class'
     DEBUG_LEVELS = {'debug': logging.DEBUG,
-              'info': logging.INFO,
-              'warning': logging.WARNING,
-              'error': logging.ERROR,
-              'critical': logging.CRITICAL,
-              }
+                'info': logging.INFO,
+                'warning': logging.WARNING,
+                'error': logging.ERROR,
+                'critical': logging.CRITICAL,
+                }
     DEBUG_NAMES = ['critical', 'error', 'warning', 'info', 'debug']
 
     def __init__(self):
