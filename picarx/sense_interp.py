@@ -40,10 +40,10 @@ class Interpret(object):
     Args:
         l_th: Threshold for slight turn
         h_th: Threshold for hard turn
-        polarity: Polarity of the line (1 for black line on white background, -1 for white line on black background)
+        polarity: Polarity of the line (-1 for black line on white background, 1 for white line on black background)
     """
 
-    def __init__(self, l_th:float=0.5, h_th:float=1.0, polarity:int=1):
+    def __init__(self, l_th:float=0.25, h_th:float=0.75, polarity:int=-1):
 
         # Set the thresholds
         self.l_th = l_th
@@ -67,18 +67,54 @@ class Interpret(object):
         edge_val = np.abs(edge)
         edge_sign = np.sign(edge)
 
-        # Get the direction of turn
+        print(f"Edge: {edge}")
 
+        ''' Logic for getting turn direction
+        1. If edge values are above h_th for both sensors, edge signs are same as polarity, then zero turn - denoted by 0
+        2. If edge[0] is lower than l_th and edge[1] is not, edge[1] is same as polarity, then slight left - denoted by -0.5
+        3. If edge[0] is higher than l_th and edge[1] is not, edge[0] is opposite of polarity, then sharp left - denoted by -1
+        4. If edge[1] is lower than l_th and edge[0] is not, edge[0] is same as polarity, then slight right - denoted by 0.5
+        5. If edge[1] is higher than l_th and edge[0] is not, edge[1] is opposite of polarity, then sharp right - denoted by 1
+        6. If none of the above conditions are satisfied, then zero turn - denoted by 0
+        '''
+
+        ## Get the turn direction
+        # Straight
+        if edge_val[0] >= self.h_th and edge_val[1] >= self.h_th and edge_sign[0] == edge_sign[1] == self.polarity:
+            direction = 0.0
+        # Slight left
+        elif edge_val[0] <= self.l_th and edge_val[1] >= self.l_th and edge_sign[1] == self.polarity:
+            direction = -0.5
+        # Sharp left
+        elif edge_val[0] >= self.l_th and edge_val[1] <= self.l_th and edge_sign[0] == -self.polarity:
+            direction = -1.0
+        # Slight right
+        elif edge_val[0] >= self.l_th and edge_val[1] <= self.l_th and edge_sign[0] == self.polarity:
+            direction = 0.5
+        # Sharp right
+        elif edge_val[0] <= self.l_th and edge_val[1] >= self.l_th and edge_sign[1] == -self.polarity:
+            direction = 1.0
+        # Unknown
+        else:
+            direction = 0.0
+
+        return direction
 
 if __name__ == "__main__":
 
-    # Testing sensing module
-    sensor = Sensing()
+    # Testing interpretation module
+    # Thresholds and polarity
+    l_th = 0.25
+    h_th = 0.75
+    polarity = -1 # Black line on white background
+
+    # Initialize the interpreter
+    interpreter = Interpret(l_th=l_th, h_th=h_th, polarity=polarity)
 
     try:
         while True:
-            data= sensor.get_grayscale_data()
-            print(f"Data: {data}")
+            direction = interpreter.get_direction()
+            print(f"Direction: {direction}")
             time.sleep(1)
     except KeyboardInterrupt:
         print("Program stopped by User")
