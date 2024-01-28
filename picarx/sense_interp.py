@@ -43,9 +43,10 @@ class Interpret(object):
         l_th: Threshold for slight turn
         h_th: Threshold for hard turn
         polarity: Polarity of the line (-1 for black line on white background, 1 for white line on black background)
+        is_normal: Normalize the data with Normal Distribution or just divide by mean
     """
 
-    def __init__(self, l_th:float=0.25, h_th:float=0.75, polarity:int=-1):
+    def __init__(self, l_th:float=0.35, h_th:float=0.8, polarity:int=-1, is_normal:bool=False):
 
         # Set the thresholds
         self.l_th = l_th
@@ -53,6 +54,7 @@ class Interpret(object):
 
         # Set the polarity
         self.polarity = polarity
+        self.is_normal = is_normal
 
         # Intialize the sensing module
         self.sensor = Sensing()
@@ -61,15 +63,13 @@ class Interpret(object):
         """Function to get direction and degree of turn based on sensor data"""
 
         # Get the sensor data
-        data = self.sensor.get_grayscale_data(is_normal=False) # (3x1)
+        data = self.sensor.get_grayscale_data(is_normal=self.is_normal) # (3x1)
 
         # Take difference between sensor data to get edge
         edge = np.diff(data) # (2x1)
         edge[1] *= -1 # To get edge values of extreme sensors wrt to center sensor
         edge_val = np.abs(edge)
         edge_sign = np.sign(edge)
-
-        print(f"Edge: {edge}")
 
         ''' Logic for getting turn direction
         1. If edge values are above h_th for both sensors, edge signs are same as polarity, then zero turn - denoted by 0
