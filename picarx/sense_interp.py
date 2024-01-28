@@ -17,6 +17,8 @@ class Sensing(object):
     def __init__(self):
         self.ch0, self.ch1, self.ch2 = [ADC(pin) for pin in self.GRAYSCALE_PINS]
 
+        # Maybe need to calibrate the sensors at startup
+
     def get_grayscale_data(self, is_normal:bool=True):
         """Function to get the values"""
 
@@ -59,7 +61,7 @@ class Interpret(object):
         """Function to get direction and degree of turn based on sensor data"""
 
         # Get the sensor data
-        data = self.sensor.get_grayscale_data() # (3x1)
+        data = self.sensor.get_grayscale_data(is_normal=False) # (3x1)
 
         # Take difference between sensor data to get edge
         edge = np.diff(data) # (2x1)
@@ -86,13 +88,13 @@ class Interpret(object):
         elif edge_val[0] <= self.l_th and edge_val[1] >= self.l_th and edge_sign[1] == self.polarity:
             direction = -0.5
         # Sharp left
-        elif edge_val[0] >= self.l_th and edge_val[1] <= self.l_th and edge_sign[0] == -self.polarity:
+        elif edge_val[0] >= self.h_th and edge_val[1] <= self.l_th and edge_sign[0] == -self.polarity:
             direction = -1.0
         # Slight right
         elif edge_val[0] >= self.l_th and edge_val[1] <= self.l_th and edge_sign[0] == self.polarity:
             direction = 0.5
         # Sharp right
-        elif edge_val[0] <= self.l_th and edge_val[1] >= self.l_th and edge_sign[1] == -self.polarity:
+        elif edge_val[0] <= self.l_th and edge_val[1] >= self.h_th and edge_sign[1] == -self.polarity:
             direction = 1.0
         # Unknown
         else:
@@ -104,8 +106,8 @@ if __name__ == "__main__":
 
     # Testing interpretation module
     # Thresholds and polarity
-    l_th = 0.25
-    h_th = 0.75
+    l_th = 0.35
+    h_th = 0.8
     polarity = -1 # Black line on white background
 
     # Initialize the interpreter
