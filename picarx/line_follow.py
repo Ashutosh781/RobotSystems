@@ -16,7 +16,7 @@ class LineFollower(Maneuvers):
         is_normal: Normalize the data with Normal Distribution or just divide by mean
     """
 
-    def __init__(self, scale:float=10.0, l_th:float=0.35, h_th:float=0.8, polarity:int=-1, is_normal:bool=False):
+    def __init__(self, scale:float=10.0, l_th:float=0.35, h_th:float=0.8, polarity:int=-1, speed:int=25, is_normal:bool=False):
 
         # Initialize the parent class
         super().__init__()
@@ -30,6 +30,8 @@ class LineFollower(Maneuvers):
 
         # Set the polarity
         self.polarity = polarity
+
+        self.speed = speed
         self.is_normal = is_normal
 
         # Initialize the controller
@@ -38,9 +40,6 @@ class LineFollower(Maneuvers):
         # Initialize the sensor interpreter
         self.interpreter = Interpret(l_th=self.l_th, h_th=self.h_th, polarity=self.polarity, is_normal=self.is_normal)
         time.sleep(0.5)
-
-        # Atexit register again for safety
-        atexit.register(self.stop)
 
     def follow_line(self):
         """Function to follow the line"""
@@ -51,23 +50,24 @@ class LineFollower(Maneuvers):
         # Get the control angle
         angle = self.controller.get_control_angle(direction)
 
-        print(f"Angle: {angle}")
-
         # Drive forward with the control angle
-        self.forward_with_angle(self.SAFE_SPEED, angle)
+        self.forward_with_angle(self.speed, angle)
 
-    def main(self):
-        """Main function"""
+def main(scale:float=10.0, l_th:float=0.35, h_th:float=0.8, polarity:int=-1, speed:int=25, is_normal:bool=False):
+    """Main function"""
 
-        try:
-            while True:
-                self.follow_line()
-                time.sleep(0.01)
+    lf = LineFollower(scale, l_th, h_th, polarity, speed, is_normal)
+    try:
+        while True:
+            lf.follow_line()
 
-        except KeyboardInterrupt:
-            self.stop()
-            self.set_dir_servo_angle(0.0)
-            print("Stopped")
+    except KeyboardInterrupt:
+        lf.stop()
+        lf.set_dir_servo_angle(0.0)
+        print("Stopped")
+
+        # Destroy the line follower object
+        del lf
 
 
 if __name__ == "__main__":
@@ -77,7 +77,8 @@ if __name__ == "__main__":
     l_th = 0.35
     h_th = 0.8
     polarity = -1
+    speed = 25
     is_normal = False
 
-    lf = LineFollower(scale, l_th, h_th, polarity, is_normal)
-    lf.main()
+    # Call the main function
+    main(scale, l_th, h_th, polarity, speed, is_normal)

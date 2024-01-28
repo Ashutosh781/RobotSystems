@@ -1,7 +1,7 @@
 import time
 import readchar
 from maneuvers import Maneuvers
-from line_follow import LineFollower
+from line_follow import main as line_follow_main
 
 manual = '''
 Press keys on keyboard to control PiCar-X!
@@ -42,6 +42,7 @@ if __name__ == "__main__":
         # Set the speed and angle
         speed = robot.SAFE_SPEED
         angle = robot.SAFE_ANGLE
+        line_follow_speed = 20
 
         while True:
             key = readchar.readkey()
@@ -77,18 +78,16 @@ if __name__ == "__main__":
 
                 elif 'f' == key:
                     # Parameters for line following
-                    scale = 10.0
+                    scale = 30.0
                     l_th = 0.35
                     h_th = 0.8
                     polarity = -1
                     is_normal = False
                     # Create a line follower object
-                    lf = LineFollower(scale, l_th, h_th, polarity, is_normal)
                     print("Line Following")
-                    # Follow the line
-                    lf.main()
+                    lf = line_follow_main(scale, l_th, h_th, polarity, line_follow_speed, is_normal)
 
-                time.sleep(0.5)
+                time.sleep(0.1)
                 show_info()
 
             elif key == readchar.key.CTRL_C:
