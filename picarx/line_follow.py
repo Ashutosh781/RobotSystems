@@ -37,9 +37,10 @@ class LineFollower(Maneuvers):
 
         # Initialize the sensor interpreter
         self.interpreter = Interpret(l_th=self.l_th, h_th=self.h_th, polarity=self.polarity, is_normal=self.is_normal)
+        time.sleep(0.5)
 
         # Atexit register again for safety
-        atexit.register(self.stop())
+        atexit.register(self.stop)
 
     def follow_line(self):
         """Function to follow the line"""
@@ -50,8 +51,10 @@ class LineFollower(Maneuvers):
         # Get the control angle
         angle = self.controller.get_control_angle(direction)
 
+        print(f"Angle: {angle}")
+
         # Drive forward with the control angle
-        self.forward_with_angle(0.0, angle)
+        self.forward_with_angle(self.SAFE_SPEED, angle)
 
     def main(self):
         """Main function"""
@@ -68,5 +71,13 @@ class LineFollower(Maneuvers):
 
 
 if __name__ == "__main__":
-    lf = LineFollower()
+
+    # Parameters
+    scale = 10.0
+    l_th = 0.35
+    h_th = 0.8
+    polarity = -1
+    is_normal = False
+
+    lf = LineFollower(scale, l_th, h_th, polarity, is_normal)
     lf.main()

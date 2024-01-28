@@ -1,6 +1,7 @@
 import time
 import readchar
 from maneuvers import Maneuvers
+from line_follow import LineFollower
 
 manual = '''
 Press keys on keyboard to control PiCar-X!
@@ -13,6 +14,7 @@ Press keys on keyboard to control PiCar-X!
     e: Parallel park to the right
     z: Three point turn to the left
     c: Three point turn to the right
+    f: Line following - Be careful to kill the program
     ctrl+c: Exit the program
 
     Robot will execute a maneuver until either the maneuver is complete or the robot is stopped.
@@ -44,7 +46,7 @@ if __name__ == "__main__":
         while True:
             key = readchar.readkey()
             key = key.lower()
-            if key in('qweasdzxc'):
+            if key in('qweasdzxcf'):
                 if 'w' == key:
                     robot.drive_steer(speed, 0)
                     print("Forward")
@@ -72,6 +74,19 @@ if __name__ == "__main__":
                 elif 'c' == key:
                     robot.three_point_turn('r')
                     print("Three Point Turn Right")
+
+                elif 'f' == key:
+                    # Parameters for line following
+                    scale = 10.0
+                    l_th = 0.35
+                    h_th = 0.8
+                    polarity = -1
+                    is_normal = False
+                    # Create a line follower object
+                    lf = LineFollower(scale, l_th, h_th, polarity, is_normal)
+                    print("Line Following")
+                    # Follow the line
+                    lf.main()
 
                 time.sleep(0.5)
                 show_info()

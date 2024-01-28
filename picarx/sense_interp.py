@@ -16,6 +16,7 @@ class Sensing(object):
 
     def __init__(self):
         self.ch0, self.ch1, self.ch2 = [ADC(pin) for pin in self.GRAYSCALE_PINS]
+        time.sleep(0.5)
 
         # Maybe need to calibrate the sensors at startup
 
