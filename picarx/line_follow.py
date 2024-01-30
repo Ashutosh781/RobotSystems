@@ -62,6 +62,7 @@ class LineFollower(Maneuvers):
         else:
             direction = self.camera.get_shift(image, is_draw=False)
 
+        # If None - that means no case satisfied - then use the previous direction
         if direction is None:
             direction = self.prev_direction
 
@@ -90,7 +91,7 @@ def lf_grayscale_main(scale:float=30.0, polarity:int=-1, speed:int=22, l_th:floa
         # Destroy the line follower object
         del lf
 
-def lf_camera_main(scale:float=30.0, polarity:int=-1, speed:int=22, is_camera:bool=True, cam_thresh:int=50, cam_tilt_angle:int=-15):
+def lf_camera_main(scale:float=30.0, polarity:int=-1, speed:int=22, is_camera:bool=True, cam_thresh:int=50, cam_tilt_angle:int=-25):
     """Main function to follow the line using camera"""
 
     lf = LineFollower(scale=scale, polarity=polarity, speed=speed, is_camera=is_camera, cam_thresh=cam_thresh)
