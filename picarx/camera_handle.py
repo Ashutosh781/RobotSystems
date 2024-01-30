@@ -3,7 +3,6 @@ import cv2 as cv
 import numpy as np
 from picamera import PiCamera
 from picamera.array import PiRGBArray
-from picarx_improved import Picarx
 
 
 class CameraHandle(object):
@@ -33,10 +32,6 @@ class CameraHandle(object):
         self.camStream.truncate(0)
         # Wait for the camera to warm up
         time.sleep(1)
-
-        # Tilt the robot camera down
-        self.robot = Picarx()
-        self.robot.set_cam_tilt_angle(-15) # tilt the camera down to maximum
 
         # Initialise the region of interest
         self.roi = ROI()
