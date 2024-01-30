@@ -22,6 +22,9 @@ Press keys on keyboard to control PiCar-X!
     For safety reasons, keep the Stop key (x) close at hand.
     For best and safe results, explicit speed and angle values are used for each maneuver, and not controlled by the user.
     For complex maneuvers, parallel parking and three point turn, the robot will execute the maneuver completely, before accepting another command.
+
+    For line following using grayscale sensors, sometimes killing the process doesn't terminate the program. In such cases, use ctrl+z to stop the program, and then run it again.
+    For line following using camera, you can only do it once in a session. If you want to do it again, you need to restart the program.
 '''
 
 def show_info():
@@ -93,7 +96,7 @@ if __name__ == "__main__":
                 elif 'r' == key:
                     # Parameters for line following using camera
                     cam_thresh = 50
-                    cam_tilt_angle = -15
+                    cam_tilt_angle = -25
                     is_camera = True
 
                     # Create a line follower object

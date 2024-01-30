@@ -115,6 +115,7 @@ def lf_camera_main(scale:float=30.0, polarity:int=-1, speed:int=22, is_camera:bo
         print("Stopped")
 
         # Destroy the line follower object
+        del lf.camera
         del lf
 
 
