@@ -93,12 +93,15 @@ class CameraHandle(object):
                 box = np.int0(box)
                 box = self.roi.order_box(box)
 
-                # Calculate the shift of the center of the box from the center of the image
+                # Calculate the average shift of the line
+                # We are tracking the average shift of the line because just tracking the center of the line might result in early turns
                 if box is not None:
                     pt1, pt2 = self.roi.calc_box_vector(box)
 
-                    if pt2 is not None:
-                        shift = (pt2[0] - w) / w
+                    if pt2 is not None and pt1 is not None:
+                        s1 = (pt1[0] - w) / w
+                        s2 = (pt2[0] - w) / w
+                        shift = (s1 + s2) / 2
 
                         # Draw the countour, box and line on the image
                         if is_draw:

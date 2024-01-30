@@ -93,12 +93,13 @@ if __name__ == "__main__":
                 elif 'r' == key:
                     # Parameters for line following using camera
                     cam_thresh = 50
+                    cam_tilt_angle = -15
                     is_camera = True
 
                     # Create a line follower object
                     print("Line Following using Camera")
                     lf_camera_main(scale=line_follow_scale, polarity=line_follow_polarity, speed=line_follow_speed,
-                                    is_camera=is_camera, cam_thresh=cam_thresh)
+                                    is_camera=is_camera, cam_thresh=cam_thresh, cam_tilt_angle=cam_tilt_angle)
 
                 time.sleep(0.1)
                 show_info()

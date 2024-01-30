@@ -90,13 +90,13 @@ def lf_grayscale_main(scale:float=30.0, polarity:int=-1, speed:int=22, l_th:floa
         # Destroy the line follower object
         del lf
 
-def lf_camera_main(scale:float=30.0, polarity:int=-1, speed:int=22, is_camera:bool=True, cam_thresh:int=50):
+def lf_camera_main(scale:float=30.0, polarity:int=-1, speed:int=22, is_camera:bool=True, cam_thresh:int=50, cam_tilt_angle:int=-15):
     """Main function to follow the line using camera"""
 
     lf = LineFollower(scale=scale, polarity=polarity, speed=speed, is_camera=is_camera, cam_thresh=cam_thresh)
 
     # Tilt camera down
-    lf.set_cam_tilt_angle(-15)
+    lf.set_cam_tilt_angle(cam_tilt_angle)
 
     try:
         for frame in lf.camera.get_stream():
