@@ -6,7 +6,7 @@ from maneuvers import Maneuvers
 
 
 class LineFollower(Maneuvers):
-    """Class to implement line following
+    """Class to implement line following using Gray Scale Sensors
 
     Args:
         scale: Scaling factor for the control angle
