@@ -98,7 +98,7 @@ class CameraHandle(object):
                 if box is not None:
                     pt1, pt2 = self.roi.calc_box_vector(box)
 
-                    if pt2 is not None and pt1 is not None:
+                    if pt1 is not None and pt2 is not None:
                         s1 = (pt1[0] - w) / w
                         s2 = (pt2[0] - w) / w
                         shift = (s1 + s2) / 2
@@ -213,11 +213,14 @@ if __name__ == "__main__":
 
             # Break the loop if 'q' is pressed
             if key == ord('q'):
+                robot.zeros_servos()
+                cv.destroyAllWindows()
                 del robot
                 del handle
                 break
 
     except KeyboardInterrupt:
+        robot.zeros_servos()
         cv.destroyAllWindows()
         del robot
         del handle

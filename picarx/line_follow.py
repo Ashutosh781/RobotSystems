@@ -112,8 +112,7 @@ def lf_camera_main(scale:float=30.0, polarity:int=-1, speed:int=22, is_camera:bo
 
     except KeyboardInterrupt:
         lf.stop()
-        lf.set_dir_servo_angle(0.0)
-        lf.set_cam_tilt_angle(0.0)
+        lf.zeros_servos()
         print("Stopped")
 
         # Destroy the line follower object
@@ -135,10 +134,11 @@ if __name__ == "__main__":
 
     # Parameters for camera
     cam_thresh = 50
+    cam_tilt_angle = -25
     is_camera = True
 
     # Call the main function
     if not is_camera:
         lf_grayscale_main(scale=scale, polarity=polarity, speed=speed, l_th=l_th, h_th=h_th, is_normal=is_normal)
     else:
-        lf_camera_main(scale=scale, polarity=polarity, speed=speed, is_camera=is_camera, cam_thresh=cam_thresh)
+        lf_camera_main(scale=scale, polarity=polarity, speed=speed, is_camera=is_camera, cam_thresh=cam_thresh, cam_tilt_angle=cam_tilt_angle)
