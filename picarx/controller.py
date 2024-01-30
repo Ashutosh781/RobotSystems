@@ -5,7 +5,7 @@ from sense_interp import Interpret
 class LineFollowControl(object):
     """Simple class to return control angle for line following"""
 
-    def __init__(self, scale:float=10.0):
+    def __init__(self, scale:float=30.0):
         """Initialize the class
 
         Args:

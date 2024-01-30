@@ -16,7 +16,7 @@ class LineFollower(Maneuvers):
         is_normal: Normalize the data with Normal Distribution or just divide by mean
     """
 
-    def __init__(self, scale:float=10.0, l_th:float=0.35, h_th:float=0.8, polarity:int=-1, speed:int=25, is_normal:bool=False):
+    def __init__(self, scale:float=30.0, l_th:float=0.35, h_th:float=0.8, polarity:int=-1, speed:int=22, is_normal:bool=False):
 
         # Initialize the parent class
         super().__init__()
@@ -53,7 +53,7 @@ class LineFollower(Maneuvers):
         # Drive forward with the control angle
         self.forward_with_angle(self.speed, angle)
 
-def main(scale:float=10.0, l_th:float=0.35, h_th:float=0.8, polarity:int=-1, speed:int=25, is_normal:bool=False):
+def main(scale:float=30.0, l_th:float=0.35, h_th:float=0.8, polarity:int=-1, speed:int=22, is_normal:bool=False):
     """Main function"""
 
     lf = LineFollower(scale, l_th, h_th, polarity, speed, is_normal)
@@ -73,11 +73,11 @@ def main(scale:float=10.0, l_th:float=0.35, h_th:float=0.8, polarity:int=-1, spe
 if __name__ == "__main__":
 
     # Parameters
-    scale = 10.0
+    scale = 30.0
     l_th = 0.35
     h_th = 0.8
     polarity = -1
-    speed = 25
+    speed = 22
     is_normal = False
 
     # Call the main function

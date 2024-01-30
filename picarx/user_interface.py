@@ -42,7 +42,7 @@ if __name__ == "__main__":
         # Set the speed and angle
         speed = robot.SAFE_SPEED
         angle = robot.SAFE_ANGLE
-        line_follow_speed = 20
+        line_follow_speed = 22
 
         while True:
             key = readchar.readkey()

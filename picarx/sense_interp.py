@@ -60,6 +60,9 @@ class Interpret(object):
         # Intialize the sensing module
         self.sensor = Sensing()
 
+        # Just for record tracking
+        self.prev_direction = 0.0
+
     def get_direction(self):
         """Function to get direction and degree of turn based on sensor data"""
 
@@ -78,7 +81,7 @@ class Interpret(object):
         3. If edge[0] is higher than l_th and edge[1] is not, edge[0] is opposite of polarity, then sharp left - denoted by -1
         4. If edge[1] is lower than l_th and edge[0] is not, edge[0] is same as polarity, then slight right - denoted by 0.5
         5. If edge[1] is higher than l_th and edge[0] is not, edge[1] is opposite of polarity, then sharp right - denoted by 1
-        6. If none of the above conditions are satisfied, then zero turn - denoted by 0
+        6. If none of the above conditions are satisfied, then just return the previous direction. This is to avoid sudden changes in direction and a design choice.
         '''
 
         ## Get the turn direction
@@ -99,7 +102,10 @@ class Interpret(object):
             direction = 1.0
         # Unknown
         else:
-            direction = 0.0
+            direction = self.prev_direction
+
+        # Update the previous direction
+        self.prev_direction = direction
 
         return direction
 
