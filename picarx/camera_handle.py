@@ -189,6 +189,12 @@ if __name__ == "__main__":
 
     handle = CameraHandle(polarity=-1, thresh=50)
 
+    # Just for camera testing
+    from picarx_improved import Picarx
+
+    robot = Picarx()
+    robot.set_cam_tilt_angle(-25)
+
     try:
         for frame in handle.get_stream():
             # Get the image from the stream
@@ -206,8 +212,12 @@ if __name__ == "__main__":
 
             # Break the loop if 'q' is pressed
             if key == ord('q'):
+                del robot
+                del handle
                 break
 
     except KeyboardInterrupt:
         cv.destroyAllWindows()
+        del robot
+        del handle
         print("Program Ended")
