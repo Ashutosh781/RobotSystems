@@ -96,8 +96,9 @@ def lf_camera_main(scale:float=30.0, polarity:int=-1, speed:int=22, is_camera:bo
 
     lf = LineFollower(scale=scale, polarity=polarity, speed=speed, is_camera=is_camera, cam_thresh=cam_thresh)
 
-    # Tilt camera down
+    # Tilt camera down and point it in front
     lf.set_cam_tilt_angle(cam_tilt_angle)
+    lf.set_cam_pan_angle(10) # Based on servo mounting
 
     try:
         for frame in lf.camera.get_stream():

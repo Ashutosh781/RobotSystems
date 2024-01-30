@@ -194,6 +194,7 @@ if __name__ == "__main__":
 
     robot = Picarx()
     robot.set_cam_tilt_angle(-25)
+    robot.set_cam_pan_angle(10)
 
     try:
         for frame in handle.get_stream():
