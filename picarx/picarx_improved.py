@@ -124,11 +124,11 @@ class Picarx(object):
         tring, echo= ultrasonic_pins
         self.ultrasonic = Ultrasonic(Pin(tring), Pin(echo))
 
-        # --------- atexit ---------
-        atexit.register(self.stop)
-
         # --------- intialize servos ---------
         self.zeros_servos()
+
+        # --------- atexit ---------
+        atexit.register(self.stop)
 
     def zeros_servos(self):
         '''Set all servos to 0 degrees'''
