@@ -1,5 +1,6 @@
 import time
 from sense_interp import Interpret
+from utils import Bus
 
 
 class LineFollowControl(object):
@@ -15,6 +16,9 @@ class LineFollowControl(object):
         # Set the scale
         self.scale = scale
 
+        # Initialize the bus
+        self.control_bus = Bus()
+
     def get_control_angle(self, direction):
         """Function to get the control angle"""
 
@@ -22,6 +26,20 @@ class LineFollowControl(object):
         control_angle = direction * self.scale
 
         return control_angle
+
+    def consumer_producer(self, interpret_bus:Bus):
+        """Function to read interpret bus and write control bus"""
+
+        # Get the direction
+        direction = interpret_bus.read()
+
+        # Get the control angle
+        control_angle = self.get_control_angle(direction)
+
+        # Write the control angle to bus
+        self.control_bus.write(control_angle)
+
+        return True
 
 
 if __name__ == '__main__':

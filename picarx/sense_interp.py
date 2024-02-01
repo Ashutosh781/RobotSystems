@@ -2,6 +2,7 @@ import time
 import numpy as np
 import logging
 import atexit
+from utils import Bus
 
 try:
     from robot_hat import ADC
@@ -18,9 +19,12 @@ class Sensing(object):
         self.ch0, self.ch1, self.ch2 = [ADC(pin) for pin in self.GRAYSCALE_PINS]
         time.sleep(0.5)
 
+        # Initialize the bus
+        self.sensor_bus = Bus()
+
         # Maybe need to calibrate the sensors at startup
 
-    def get_grayscale_data(self, is_normal:bool=True):
+    def get_grayscale_data(self, is_normal:bool=False):
         """Function to get the values"""
 
         # Read the data
@@ -35,6 +39,16 @@ class Sensing(object):
             data = data / (np.mean(data) + 1e-9) # Add a small value to avoid division by zero
 
         return data
+
+    def producer(self):
+        """Function to write data to bus"""
+
+        # Get the data
+        data = self.get_grayscale_data(is_normal=False)
+
+        self.sensor_bus.write(data)
+
+        return True
 
 
 class Interpret(object):
@@ -60,11 +74,16 @@ class Interpret(object):
         # Intialize the sensing module
         self.sensor = Sensing()
 
-    def get_direction(self):
+        # Initialize the bus
+        self.interpret_bus = Bus()
+
+    def get_direction(self, data=None):
         """Function to get direction and degree of turn based on sensor data"""
 
         # Get the sensor data
-        data = self.sensor.get_grayscale_data(is_normal=self.is_normal) # (3x1)
+        if data is None:
+            # Read the data from sensor
+            data = self.sensor.get_grayscale_data(is_normal=self.is_normal) # (3x1)
 
         # Take difference between sensor data to get edge
         edge = np.diff(data) # (2x1)
@@ -102,6 +121,21 @@ class Interpret(object):
             direction = None
 
         return direction
+
+    def consumer_producer(self, sensor_bus:Bus):
+        """Function to read data from sensor bus and write interpreted data to bus"""
+
+        # Read the data
+        data = sensor_bus.read()
+
+        # Get the direction
+        direction = self.get_direction(data)
+
+        # Write the direction to bus
+        self.interpret_bus.write(direction)
+
+        return True
+
 
 if __name__ == "__main__":
 
