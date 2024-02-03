@@ -16,9 +16,6 @@ class LineFollowControl(object):
         # Set the scale
         self.scale = scale
 
-        # Initialize the bus
-        self.control_bus = Bus()
-
     def get_control_angle(self, direction):
         """Function to get the control angle"""
 
@@ -27,19 +24,19 @@ class LineFollowControl(object):
 
         return control_angle
 
-    def consumer_producer(self, interpret_bus:Bus):
+    def consumer_producer(self, interpret_bus:Bus, control_bus:Bus, delay:float=0.1):
         """Function to read interpret bus and write control bus"""
 
-        # Get the direction
-        direction = interpret_bus.read()
+        try:
+            while True:
+                # Get the control angle
+                interpret_val = interpret_bus.read()
+                control_angle = self.get_control_angle(interpret_val)
+                control_bus.write(control_angle)
+                time.sleep(delay)
 
-        # Get the control angle
-        control_angle = self.get_control_angle(direction)
-
-        # Write the control angle to bus
-        self.control_bus.write(control_angle)
-
-        return True
+        except KeyboardInterrupt:
+            print("Control Consumer Producer stopped by User")
 
 
 if __name__ == '__main__':

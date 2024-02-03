@@ -1,4 +1,4 @@
-# Purpose: Utility functions and classes for picarx
+from readerwriterlock import rwlock
 
 class Bus(object):
     """Simple class to act as Bus structure for communication between different modules"""
@@ -7,13 +7,18 @@ class Bus(object):
         """Initialize the class"""
 
         self.message = None
+        self.lock = rwlock.RWLockWriteD()
 
     def write(self, message):
         """Function to write message to bus"""
 
-        self.message = message
+        with self.lock.gen_wlock():
+            self.message = message
 
     def read(self):
         """Function to read message from bus"""
 
-        return self.message
+        with self.lock.gen_rlock():
+            output = self.message
+
+        return output

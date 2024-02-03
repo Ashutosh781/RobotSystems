@@ -1,6 +1,8 @@
 import time
+import concurrent.futures
+from utils import Bus
 from controller import LineFollowControl
-from sense_interp import Interpret
+from sense_interp import Sensing, Interpret
 from maneuvers import Maneuvers
 from camera_handle import CameraHandle
 
@@ -74,6 +76,20 @@ class LineFollower(Maneuvers):
         # Drive forward with the control angle
         self.forward_with_angle(self.speed, angle)
 
+    def producer(self, control_bus:Bus, delay:float=0.1):
+        """Function to run the robot with last controller output"""
+
+        try:
+            while True:
+                # Get the control angle
+                angle = control_bus.read()
+                self.drive_steer(self.speed, angle)
+                time.sleep(delay)
+
+        except KeyboardInterrupt:
+            self.stop()
+            print("Robot stopped by User")
+
 
 def lf_grayscale_main(scale:float=30.0, polarity:int=-1, speed:int=22, l_th:float=0.35, h_th:float=0.8, is_normal:bool=False):
     """Main function to follow the line using grayscale sensors"""
@@ -90,6 +106,7 @@ def lf_grayscale_main(scale:float=30.0, polarity:int=-1, speed:int=22, l_th:floa
 
         # Destroy the line follower object
         del lf
+
 
 def lf_camera_main(scale:float=30.0, polarity:int=-1, speed:int=22, is_camera:bool=True, cam_thresh:int=50, cam_tilt_angle:int=-25):
     """Main function to follow the line using camera"""
@@ -120,6 +137,58 @@ def lf_camera_main(scale:float=30.0, polarity:int=-1, speed:int=22, is_camera:bo
         del lf
 
 
+def lf_grayscale_concurrent(l_th:float=0.35, h_th:float=0.8, polarity:int=-1, scale:float=30.0, speed:int=22,
+                            sdelay:float=0.1, idelay:float=0.1, cdelay:float=0.1, rdelay:float=0.1):
+    """Function to run line following using grayscale sensors concurrently"""
+
+    # Create the bus for all three processes
+    sensor_bus = Bus()
+    interpret_bus = Bus()
+    control_bus = Bus()
+
+    # Create the sensor, interpreter and controller objects
+    sensor = Sensing()
+    interp = Interpret(l_th=l_th, h_th=h_th, polarity=polarity)
+    controller = LineFollowControl(scale=scale)
+
+    # Create the executor
+    robot = LineFollower(speed=speed)
+
+    try:
+
+        # Start all the processes concurrently
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            # Sensor process
+            eSensor = executor.submit(sensor.producer, sensor_bus, sdelay)
+            # Interpreter process
+            eInterp = executor.submit(interp.consumer_producer, sensor_bus, interpret_bus, idelay)
+            # Controller process
+            eControl = executor.submit(controller.consumer_producer, interpret_bus, control_bus, cdelay)
+            # Robot process
+            eRobot = executor.submit(robot.producer, control_bus, rdelay)
+
+        # Stop the robot
+        robot.stop()
+
+        # Error handling
+        eSensor.result()
+        eInterp.result()
+        eControl.result()
+        eRobot.result()
+
+    except KeyboardInterrupt:
+        print("Concurrent Line Following stopped by User")
+
+        # Stop the robot
+        robot.stop()
+
+        # Error handling
+        eSensor.result()
+        eInterp.result()
+        eControl.result()
+        eRobot.result()
+
+
 if __name__ == "__main__":
 
     # Common Parameters
@@ -137,8 +206,26 @@ if __name__ == "__main__":
     cam_tilt_angle = -25
     is_camera = True
 
+    # Delay for concurrent execution
+    sdelay = 0.1
+    idelay = 0.1
+    cdelay = 0.1
+    rdelay = 0.1
+    is_concurrent = False
+
     # Call the main function
-    if not is_camera:
+    if not is_camera and not is_concurrent:
+        # Gray Scale Sensors single process
         lf_grayscale_main(scale=scale, polarity=polarity, speed=speed, l_th=l_th, h_th=h_th, is_normal=is_normal)
-    else:
+
+    elif is_concurrent and not is_camera:
+        # Gray Scale Sensors concurrent processes
+        lf_grayscale_concurrent(l_th=l_th, h_th=h_th, polarity=polarity, scale=scale, speed=speed, sdelay=sdelay, idelay=idelay, cdelay=cdelay, rdelay=rdelay)
+
+    elif is_camera and not is_concurrent:
+        # Camera single process
         lf_camera_main(scale=scale, polarity=polarity, speed=speed, is_camera=is_camera, cam_thresh=cam_thresh, cam_tilt_angle=cam_tilt_angle)
+
+    elif is_camera and is_concurrent:
+        # Camera concurrent processes
+        print("Camera concurrent processes not implemented yet!")

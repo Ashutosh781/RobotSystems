@@ -19,9 +19,6 @@ class Sensing(object):
         self.ch0, self.ch1, self.ch2 = [ADC(pin) for pin in self.GRAYSCALE_PINS]
         time.sleep(0.5)
 
-        # Initialize the bus
-        self.sensor_bus = Bus()
-
         # Maybe need to calibrate the sensors at startup
 
     def get_grayscale_data(self, is_normal:bool=False):
@@ -40,15 +37,18 @@ class Sensing(object):
 
         return data
 
-    def producer(self):
+    def producer(self, sensor_bus:Bus, delay:float=0.1):
         """Function to write data to bus"""
 
-        # Get the data
-        data = self.get_grayscale_data(is_normal=False)
+        try:
+            while True:
+                # Get the sensor data
+                data = self.get_grayscale_data(is_normal=False)
+                sensor_bus.write(data)
+                time.sleep(delay)
 
-        self.sensor_bus.write(data)
-
-        return True
+        except KeyboardInterrupt:
+            print("Sensor Producer stopped by User")
 
 
 class Interpret(object):
@@ -74,8 +74,8 @@ class Interpret(object):
         # Intialize the sensing module
         self.sensor = Sensing()
 
-        # Initialize the bus
-        self.interpret_bus = Bus()
+        # Previous direction
+        self.prev_direction = 0.0
 
     def get_direction(self, data=None):
         """Function to get direction and degree of turn based on sensor data"""
@@ -97,7 +97,7 @@ class Interpret(object):
         3. If edge[0] is higher than l_th and edge[1] is not, edge[0] is opposite of polarity, then sharp left - denoted by -1
         4. If edge[1] is lower than l_th and edge[0] is not, edge[0] is same as polarity, then slight right - denoted by 0.5
         5. If edge[1] is higher than l_th and edge[0] is not, edge[1] is opposite of polarity, then sharp right - denoted by 1
-        6. If none of the above conditions are satisfied, then just return None. This will be handled by the controller
+        6. If none of the above conditions are satisfied, then just return previous direction, as no change in direction
         '''
 
         ## Get the turn direction
@@ -118,23 +118,26 @@ class Interpret(object):
             direction = 1.0
         # Unknown
         else:
-            direction = None
+            direction = self.prev_direction
+
+        # Update the previous direction
+        self.prev_direction = direction
 
         return direction
 
-    def consumer_producer(self, sensor_bus:Bus):
+    def consumer_producer(self, sensor_bus:Bus, interpret_bus:Bus, delay:float=0.1):
         """Function to read data from sensor bus and write interpreted data to bus"""
 
-        # Read the data
-        data = sensor_bus.read()
+        try:
+            while True:
+                # Get the direction
+                sensor_val = sensor_bus.read()
+                direction = self.get_direction(sensor_val)
+                interpret_bus.write(direction)
+                time.sleep(delay)
 
-        # Get the direction
-        direction = self.get_direction(data)
-
-        # Write the direction to bus
-        self.interpret_bus.write(direction)
-
-        return True
+        except KeyboardInterrupt:
+            print("Interpreter Consumer Producer stopped by User")
 
 
 if __name__ == "__main__":
