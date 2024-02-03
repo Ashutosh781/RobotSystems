@@ -122,8 +122,9 @@ if __name__ == "__main__":
                 time.sleep(0.1)
                 show_info()
 
-            elif key == readchar.key.CTRL_C or key == readchar.key.CTRL_Z:
+            else:
                 robot.stop()
+                print("Emergency Stop")
                 break
 
     except KeyboardInterrupt:
