@@ -112,12 +112,11 @@ if __name__ == "__main__":
                     sdelay = 0.1
                     idelay = 0.1
                     cdelay = 0.1
-                    rdelay = 0.1
 
                     # Create a line follower object
                     print("Line Following using Grayscale Sensors - Concurrent")
                     lf_grayscale_concurrent(l_th=l_th, h_th=h_th, polarity=line_follow_polarity, scale=line_follow_scale,
-                                            speed=line_follow_speed, sdelay=sdelay, idelay=idelay, cdelay=cdelay, rdelay=rdelay)
+                                            speed=line_follow_speed, sdelay=sdelay, idelay=idelay, cdelay=cdelay)
 
                 time.sleep(0.1)
                 show_info()
