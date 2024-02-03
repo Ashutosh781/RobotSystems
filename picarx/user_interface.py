@@ -1,7 +1,7 @@
 import time
 import readchar
 from maneuvers import Maneuvers
-from line_follow import lf_grayscale_main, lf_camera_main
+from line_follow import lf_grayscale_main, lf_camera_main, lf_grayscale_concurrent
 
 manual = '''
 Press keys on keyboard to control PiCar-X!
@@ -16,6 +16,7 @@ Press keys on keyboard to control PiCar-X!
     c: Three point turn to the right
     f: Line following - grayscale
     r: Line following - camera
+    v: Line following - grayscale concurrent
     ctrl+c: Exit the program
 
     Robot will execute a maneuver until either the maneuver is complete or the robot is stopped.
@@ -53,7 +54,7 @@ if __name__ == "__main__":
         while True:
             key = readchar.readkey()
             key = key.lower()
-            if key in('qweasdzxcfr'):
+            if key in('qweasdzxcfrv'):
                 if 'w' == key:
                     robot.drive_steer(speed, 0)
                     print("Forward")
@@ -104,6 +105,20 @@ if __name__ == "__main__":
                     lf_camera_main(scale=line_follow_scale, polarity=line_follow_polarity, speed=line_follow_speed,
                                     is_camera=is_camera, cam_thresh=cam_thresh, cam_tilt_angle=cam_tilt_angle)
 
+                elif 'v' == key:
+                    # Parameters for line following using grayscale sensors
+                    l_th = 0.35
+                    h_th = 0.8
+                    sdelay = 0.1
+                    idelay = 0.1
+                    cdelay = 0.1
+                    rdelay = 0.1
+
+                    # Create a line follower object
+                    print("Line Following using Grayscale Sensors - Concurrent")
+                    lf_grayscale_concurrent(l_th=l_th, h_th=h_th, polarity=line_follow_polarity, scale=line_follow_scale,
+                                            speed=line_follow_speed, sdelay=sdelay, idelay=idelay, cdelay=cdelay, rdelay=rdelay)
+
                 time.sleep(0.1)
                 show_info()
 
@@ -112,5 +127,5 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         robot.stop()
-        time.sleep(0.25)
+        time.sleep(0.1)
         print("Program Ended")

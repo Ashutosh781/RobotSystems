@@ -76,7 +76,7 @@ class LineFollower(Maneuvers):
         # Drive forward with the control angle
         self.forward_with_angle(self.speed, angle)
 
-    def producer(self, control_bus:Bus, delay:float=0.1):
+    def consumer(self, control_bus:Bus, delay:float=0.1):
         """Function to run the robot with last controller output"""
 
         try:
@@ -165,7 +165,7 @@ def lf_grayscale_concurrent(l_th:float=0.35, h_th:float=0.8, polarity:int=-1, sc
             # Controller process
             eControl = executor.submit(controller.consumer_producer, interpret_bus, control_bus, cdelay)
             # Robot process
-            eRobot = executor.submit(robot.producer, control_bus, rdelay)
+            eRobot = executor.submit(robot.consumer, control_bus, rdelay)
 
         # Stop the robot
         robot.stop()
