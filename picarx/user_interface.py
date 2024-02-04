@@ -16,7 +16,6 @@ Press keys on keyboard to control PiCar-X!
     c: Three point turn to the right
     f: Line following - grayscale
     r: Line following - camera
-    v: Line following - grayscale concurrent
     ctrl+c: Exit the program
 
     Robot will execute a maneuver until either the maneuver is complete or the robot is stopped.
@@ -54,7 +53,7 @@ if __name__ == "__main__":
         while True:
             key = readchar.readkey()
             key = key.lower()
-            if key in('qweasdzxcfrv'):
+            if key in('qweasdzxcfr'):
                 if 'w' == key:
                     robot.drive_steer(speed, 0)
                     print("Forward")
@@ -104,19 +103,6 @@ if __name__ == "__main__":
                     print("Line Following using Camera")
                     lf_camera_main(scale=line_follow_scale, polarity=line_follow_polarity, speed=line_follow_speed,
                                     is_camera=is_camera, cam_thresh=cam_thresh, cam_tilt_angle=cam_tilt_angle)
-
-                elif 'v' == key:
-                    # Parameters for line following using grayscale sensors
-                    l_th = 0.35
-                    h_th = 0.8
-                    sdelay = 0.1
-                    idelay = 0.1
-                    cdelay = 0.1
-
-                    # Create a line follower object
-                    print("Line Following using Grayscale Sensors - Concurrent")
-                    lf_grayscale_concurrent(l_th=l_th, h_th=h_th, polarity=line_follow_polarity, scale=line_follow_scale,
-                                            speed=line_follow_speed, sdelay=sdelay, idelay=idelay, cdelay=cdelay)
 
                 time.sleep(0.1)
                 show_info()

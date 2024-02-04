@@ -209,6 +209,13 @@ if __name__ == "__main__":
     rdelay = 0.1
     is_concurrent = True
 
+    # Take user input for concurrent and camera mode
+    is_camera = input("Use Camera for Line Following? (y/n): ").lower() == 'y'
+    is_concurrent = input("Use Concurrent Execution? (y/n): ").lower() == 'y'
+
+    print("Camera Mode: ", is_camera)
+    print("Concurrent Mode: ", is_concurrent)
+
     # Call the main function
     if not is_camera and not is_concurrent:
         # Gray Scale Sensors single process
