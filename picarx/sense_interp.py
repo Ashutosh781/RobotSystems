@@ -9,6 +9,12 @@ try:
 except ImportError:
     from sim_robot_hat import ADC
 
+import logging
+
+logging_format = "%(asctime)s: %(message)s"
+logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%H:%M:%S")
+logging.getLogger().setLevel(logging.DEBUG)
+
 
 class Sensing(object):
     """Class to get sensor data from Grayscale module on PiCar-X"""
@@ -40,15 +46,12 @@ class Sensing(object):
     def producer(self, sensor_bus:Bus, delay:float=0.1):
         """Function to write data to bus"""
 
-        try:
-            while True:
-                # Get the sensor data
-                data = self.get_grayscale_data(is_normal=False)
-                sensor_bus.write(data)
-                time.sleep(delay)
-
-        except KeyboardInterrupt:
-            print("Sensor Producer stopped by User")
+        while True:
+            # Get the sensor data
+            data = self.get_grayscale_data(is_normal=False)
+            sensor_bus.write(data)
+            # logging.info(f"Sensor: {data}")
+            time.sleep(delay)
 
 
 class Interpret(object):
@@ -128,16 +131,13 @@ class Interpret(object):
     def consumer_producer(self, sensor_bus:Bus, interpret_bus:Bus, delay:float=0.1):
         """Function to read data from sensor bus and write interpreted data to bus"""
 
-        try:
-            while True:
-                # Get the direction
-                sensor_val = sensor_bus.read()
-                direction = self.get_direction(sensor_val)
-                interpret_bus.write(direction)
-                time.sleep(delay)
-
-        except KeyboardInterrupt:
-            print("Interpreter Consumer Producer stopped by User")
+        while True:
+            # Get the direction
+            sensor_val = sensor_bus.read()
+            direction = self.get_direction(sensor_val)
+            interpret_bus.write(direction)
+            # logging.info(f"Interpret: {direction}")
+            time.sleep(delay)
 
 
 if __name__ == "__main__":

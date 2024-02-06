@@ -1,7 +1,7 @@
 import time
 import readchar
 from maneuvers import Maneuvers
-from line_follow import lf_grayscale_main, lf_camera_main, lf_grayscale_concurrent
+from line_follow import lf_grayscale_main, lf_camera_main
 
 manual = '''
 Press keys on keyboard to control PiCar-X!

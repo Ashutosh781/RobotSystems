@@ -2,6 +2,12 @@ import time
 from sense_interp import Interpret
 from utils import Bus
 
+import logging
+
+logging_format = "%(asctime)s: %(message)s"
+logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%H:%M:%S")
+logging.getLogger().setLevel(logging.DEBUG)
+
 
 class LineFollowControl(object):
     """Simple class to return control angle for line following"""
@@ -27,16 +33,13 @@ class LineFollowControl(object):
     def consumer_producer(self, interpret_bus:Bus, control_bus:Bus, delay:float=0.1):
         """Function to read interpret bus and write control bus"""
 
-        try:
-            while True:
-                # Get the control angle
-                interpret_val = interpret_bus.read()
-                control_angle = self.get_control_angle(interpret_val)
-                control_bus.write(control_angle)
-                time.sleep(delay)
-
-        except KeyboardInterrupt:
-            print("Control Consumer Producer stopped by User")
+        while True:
+            # Get the control angle
+            interpret_val = interpret_bus.read()
+            control_angle = self.get_control_angle(interpret_val)
+            control_bus.write(control_angle)
+            # logging.info(f"Control: {control_angle}")
+            time.sleep(delay)
 
 
 if __name__ == '__main__':
