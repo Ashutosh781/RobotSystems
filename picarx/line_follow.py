@@ -6,6 +6,12 @@ from sense_interp import Sensing, Interpret
 from maneuvers import Maneuvers
 from camera_handle import CameraHandle
 
+import logging
+
+logging_format = "%(asctime)s: %(message)s"
+logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%H:%M:%S")
+logging.getLogger().setLevel(logging.DEBUG)
+
 
 class LineFollower(Maneuvers):
     """Class to implement line following using Gray Scale Sensors or Camera
@@ -83,6 +89,7 @@ class LineFollower(Maneuvers):
             while True:
                 # Get the control angle
                 angle = control_bus.read()
+                logging.info(f"Angle: {angle}")
                 self.drive_steer(self.speed, angle)
 
         except KeyboardInterrupt:
