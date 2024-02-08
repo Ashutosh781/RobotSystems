@@ -108,10 +108,10 @@ terminationTimer = rr.Timer(
 
 # Create a list of producer-consumers to execute concurrently
 producer_consumer_list = [readSquare,
-                          readSawtooth,
-                          multiplyWaves,
-                          printBuses,
-                          terminationTimer]
+                            readSawtooth,
+                            multiplyWaves,
+                            printBuses,
+                            terminationTimer]
 
 # Execute the list of producer-consumers concurrently
 rr.runConcurrently(producer_consumer_list)

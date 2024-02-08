@@ -1,8 +1,9 @@
 import time
-from sense_interp import Interpret
-from utils import Bus
-
 import logging
+import rossros as rr
+
+from utils import Bus
+from sense_interp import Interpret
 
 logging_format = "%(asctime)s: %(message)s"
 logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%H:%M:%S")

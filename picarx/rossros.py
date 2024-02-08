@@ -17,8 +17,8 @@ class Bus:
     """
 
     def __init__(self,
-                 initial_message=0,
-                 name="Unnamed Bus"):
+                initial_message=0,
+                name="Unnamed Bus"):
 
         self.message = initial_message
         self.name = name
@@ -49,7 +49,7 @@ def ensureTuple(value):
     """
     Function that wraps an input value in a tuple if it is not already a tuple
     """
-    
+
     if isinstance(value, tuple):
         value_tuple = value
     else:
@@ -70,12 +70,12 @@ class ConsumerProducer:
     @log_on_error(DEBUG, "{name:s}: Encountered an error while creating consumer-producer")
     @log_on_end(DEBUG, "{name:s}: Finished creating consumer-producer")
     def __init__(self,
-                 consumer_producer_function,
-                 input_buses,
-                 output_buses,
-                 delay=0,
-                 termination_buses=Bus(False, "Default consumer_producer termination bus"),
-                 name="Unnamed consumer_producer"):
+                consumer_producer_function,
+                input_buses,
+                output_buses,
+                delay=0,
+                termination_buses=Bus(False, "Default consumer_producer termination bus"),
+                name="Unnamed consumer_producer"):
 
         self.consumer_producer_function = consumer_producer_function
         self.input_buses = ensureTuple(input_buses)
@@ -181,11 +181,11 @@ class Producer(ConsumerProducer):
     @log_on_error(DEBUG, "{name:s}: Encountered an error while creating producer")
     @log_on_end(DEBUG, "{name:s}: Finished creating producer")
     def __init__(self,
-                 producer_function,
-                 output_buses,
-                 delay=0,
-                 termination_buses=Bus(False, "Default producer termination bus"),
-                 name="Unnamed producer"):
+                producer_function,
+                output_buses,
+                delay=0,
+                termination_buses=Bus(False, "Default producer termination bus"),
+                name="Unnamed producer"):
 
         # Producers don't use an input bus
         input_buses = Bus(0, "Default producer input bus")
@@ -215,11 +215,11 @@ class Consumer(ConsumerProducer):
     @log_on_error(DEBUG, "{name:s}: Encountered an error while creating consumer")
     @log_on_end(DEBUG, "{name:s}: Finished creating consumer")
     def __init__(self,
-                 consumer_function,
-                 input_buses,
-                 delay=0,
-                 termination_buses=Bus(False, "Default consumer termination bus"),
-                 name="Unnamed consumer"):
+                consumer_function,
+                input_buses,
+                delay=0,
+                termination_buses=Bus(False, "Default consumer termination bus"),
+                name="Unnamed consumer"):
 
         # Match naming convention for this class with its parent class
         consumer_producer_function = consumer_function
@@ -249,11 +249,11 @@ class Timer(Producer):
     @log_on_error(DEBUG, "{name:s}: Encountered an error while creating timer")
     @log_on_end(DEBUG, "{name:s}: Finished creating timer")
     def __init__(self,
-                 output_buses,  # buses that receive the countdown value
-                 duration=5,  # how many seconds the timer should run for (0 is forever)
-                 delay=0,  # how many seconds to sleep for between checking time
-                 termination_buses=Bus(False, "Default timer termination bus"),
-                 name="Unnamed termination timer"):
+                output_buses,  # buses that receive the countdown value
+                duration=5,  # how many seconds the timer should run for (0 is forever)
+                delay=0,  # how many seconds to sleep for between checking time
+                termination_buses=Bus(False, "Default timer termination bus"),
+                name="Unnamed termination timer"):
 
         super().__init__(
             self.timer,  # Timer class defines its own producer function
@@ -288,11 +288,11 @@ class Printer(Consumer):
     @log_on_error(DEBUG, "{name:s}: Encountered an error while creating printer")
     @log_on_end(DEBUG, "{name:s}: Finished creating printer")
     def __init__(self,
-                 printer_bus,  # bus or tuple of buses that should be printed to the terminal
-                 delay=0,  # how many seconds to sleep for between printing data
-                 termination_buses=Bus(False, "Default printer termination bus"),  # buses to check for termination
-                 name="Unnamed termination timer",  # name of this printer
-                 print_prefix="Unspecified printer: "):  # prefix for output
+                printer_bus,  # bus or tuple of buses that should be printed to the terminal
+                delay=0,  # how many seconds to sleep for between printing data
+                termination_buses=Bus(False, "Default printer termination bus"),  # buses to check for termination
+                name="Unnamed termination timer",  # name of this printer
+                print_prefix="Unspecified printer: "):  # prefix for output
 
         super().__init__(
             self.print_bus,  # Printer class defines its own printing function

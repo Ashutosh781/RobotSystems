@@ -1,12 +1,13 @@
 import time
+import logging
 import concurrent.futures
+import rossros as rr
+
 from utils import Bus
 from controller import LineFollowControl
 from sense_interp import Sensing, Interpret
 from maneuvers import Maneuvers
 from camera_handle import CameraHandle
-
-import logging
 
 logging_format = "%(asctime)s: %(message)s"
 logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%H:%M:%S")
