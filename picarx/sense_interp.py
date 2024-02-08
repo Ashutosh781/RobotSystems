@@ -1,15 +1,14 @@
 import time
-import numpy as np
 import logging
-import atexit
+import numpy as np
+import rossros as rr
+
 from utils import Bus
 
 try:
-    from robot_hat import ADC
+    from robot_hat import ADC, Ultrasonic, Pin
 except ImportError:
-    from sim_robot_hat import ADC
-
-import logging
+    from sim_robot_hat import ADC, Ultrasonic, Pin
 
 logging_format = "%(asctime)s: %(message)s"
 logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%H:%M:%S")
@@ -134,9 +133,76 @@ class Interpret(object):
         while True:
             # Get the direction
             sensor_val = sensor_bus.read()
-            direction = self.get_direction(sensor_val)
+            direction = self.get_direction(data=sensor_val)
             interpret_bus.write(direction)
             # logging.info(f"Interpret: {direction}")
+            time.sleep(delay)
+
+
+class SenseUltra(object):
+    """Class to get sensor data from Ultrasonic module on PiCar-X"""
+
+    ULTRASONIC_PINS = ['D2', 'D3']
+
+    def __init__(self):
+        tring_pin, echo_pin = self.ULTRASONIC_PINS
+        self.sensor = Ultrasonic(tring_pin, echo_pin)
+        time.sleep(0.5)
+
+    def get_ultrasonic_data(self):
+        """Function to get the distance from the ultrasonic sensor"""
+
+        # Read the data
+        distance = self.sensor.read()
+
+        return distance
+
+    def producer(self, sensor_bus:Bus, delay:float=0.1):
+        """Function to write data to bus"""
+
+        while True:
+            # Get the sensor data
+            data = self.get_ultrasonic_data()
+            sensor_bus.write(data)
+            # logging.info(f"Sensor: {data}")
+            time.sleep(delay)
+
+
+class InterpretUltra(object):
+    """Class to interpret sensor data from Ultrasonic module on PiCar-X"""
+
+    def __init__(self, threshold:float=0.3):
+
+        self.threshold = threshold
+
+        # Intialize the sensing module
+        self.sensor = SenseUltra()
+
+    def get_obstacle(self, data=None):
+        """Function to get if obstacle is detected based on sensor data"""
+
+        # Get the sensor data
+        if data is None:
+            # Read the data from sensor
+            data = self.sensor.get_ultrasonic_data()
+
+        # Check if obstacle is detected
+        if data <= self.threshold:
+            obstacle = True
+        else:
+            obstacle = False
+
+        return obstacle
+
+    def consumer_producer(self, sensor_bus:Bus, interpret_bus:Bus, delay:float=0.1):
+        """Function to read data from sensor bus and write interpreted data to bus"""
+
+        while True:
+            # Get the direction
+            sensor_val = sensor_bus.read()
+            obstacle = self.get_obstacle(data=sensor_val)
+            interpret_bus.write(obstacle)
+            # logging.info(f"Interpret: {obstacle}")
             time.sleep(delay)
 
 
