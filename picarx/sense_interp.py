@@ -146,7 +146,7 @@ class SenseUltra(object):
 
     def __init__(self):
         tring_pin, echo_pin = self.ULTRASONIC_PINS
-        self.sensor = Ultrasonic(tring_pin, echo_pin)
+        self.sensor = Ultrasonic(Pin(tring_pin), Pin(echo_pin))
         time.sleep(0.5)
 
     def get_ultrasonic_data(self):

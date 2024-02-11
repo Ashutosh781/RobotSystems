@@ -121,14 +121,14 @@ if __name__ == "__main__":
 
     # Delays
     Gsdelay = 0.05
-    Usdelay = 0.06
+    Usdelay = 0.05
     Gidelay = 0.05
-    Uidelay = 0.06
-    cdelay = 0.06
-    rdelay = 0.15
+    Uidelay = 0.05
+    cdelay = 0.05
+    rdelay = 0.1
 
     # Termination time
-    terminate_time = 15 # seconds
+    terminate_time = 10 # seconds
 
     # Call the main function
     main(l_th=l_th, h_th=h_th, polarity=polarity, obj_th=obj_th, scale=scale, speed=speed,
