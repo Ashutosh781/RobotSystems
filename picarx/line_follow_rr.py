@@ -1,3 +1,4 @@
+import atexit
 import logging
 import rossros as rr
 
@@ -104,6 +105,9 @@ def main(l_th:float=0.35, h_th:float=0.8, polarity:int=-1, obj_th:float=15.0, sc
     # Run the concurrent execution
     rr.runConcurrently(producer_consumer_list)
 
+    # Kill the robot
+    atexit.register(robot.stop)
+
 
 if __name__ == "__main__":
 
@@ -127,12 +131,6 @@ if __name__ == "__main__":
     terminate_time = 15 # seconds
 
     # Call the main function
-    try:
-        main(l_th=l_th, h_th=h_th, polarity=polarity, obj_th=obj_th, scale=scale, speed=speed,
+    main(l_th=l_th, h_th=h_th, polarity=polarity, obj_th=obj_th, scale=scale, speed=speed,
         Gsdelay=Gsdelay, Usdelay=Usdelay, Gidelay=Gidelay, Uidelay=Uidelay, cdelay=cdelay, rdelay=rdelay,
         terminate_time=terminate_time)
-
-    except KeyboardInterrupt:
-        px = Picarx()
-        px.stop()
-        print("Exiting the program")
