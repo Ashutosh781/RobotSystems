@@ -23,11 +23,14 @@ class LineFollowControl(object):
         # Set the scale
         self.scale = scale
 
-    def get_control_angle(self, direction):
+    def get_control_angle(self, direction=None):
         """Function to get the control angle"""
 
         # Get the control angle
-        control_angle = direction * self.scale
+        if direction is None:
+            control_angle = 0.0
+        else:
+            control_angle = direction * self.scale
 
         return control_angle
 

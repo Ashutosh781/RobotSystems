@@ -83,6 +83,16 @@ class LineFollower(Maneuvers):
         # Drive forward with the control angle
         self.forward_with_angle(self.speed, angle)
 
+    def follow_line_with_ultra(self, angle:float=0.0, obstacle:bool=False):
+        """Function to follow the line with ultrasonic sensor for obstacle avoidance"""
+
+        # If no obstacle, then follow the line
+        if not obstacle:
+            self.drive_steer(self.speed, angle)
+        else:
+            # Stop the robot
+            self.stop()
+
     def consumer(self, control_bus:Bus, delay:float=0.1):
         """Function to run the robot with last controller output"""
 
@@ -91,6 +101,17 @@ class LineFollower(Maneuvers):
             angle = control_bus.read()
             self.drive_steer(self.speed, angle)
             # logging.info(f"Robot: {angle}")
+            time.sleep(delay)
+
+    def consumer_ultra(self, control_bus:Bus, ultra_bus:Bus, delay:float=0.1):
+        """Function to run the robot with last controller output and ultrasonic sensor data"""
+
+        while True:
+            # Get the control angle
+            angle = control_bus.read()
+            obstacle = ultra_bus.read()
+            self.follow_line_with_ultra(angle, obstacle)
+            # logging.info(f"Robot: {angle} | Obs: {obstacle}")
             time.sleep(delay)
 
 

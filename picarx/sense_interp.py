@@ -171,7 +171,7 @@ class SenseUltra(object):
 class InterpretUltra(object):
     """Class to interpret sensor data from Ultrasonic module on PiCar-X"""
 
-    def __init__(self, threshold:float=0.3):
+    def __init__(self, threshold:float=10.0):
 
         self.threshold = threshold
 
@@ -187,7 +187,8 @@ class InterpretUltra(object):
             data = self.sensor.get_ultrasonic_data()
 
         # Check if obstacle is detected
-        if data <= self.threshold:
+        # If distance is less than threshold and not -1 as -1 is the default value for nothing detected
+        if data <= self.threshold and data > 0:
             obstacle = True
         else:
             obstacle = False
