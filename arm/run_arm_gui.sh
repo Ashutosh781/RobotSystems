@@ -1,0 +1,1 @@
+sudo python3 ./ArmPi_PC_Software/ArmPi.py
