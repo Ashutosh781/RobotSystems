@@ -110,7 +110,7 @@ def reset():
     global start_pick_up
     global __target_color
     global start_count_t1
-    
+
     count = 0
     _stop = False
     track = False
@@ -137,7 +137,7 @@ def start():
 
 # app停止玩法调用
 def stop():
-    global _stop 
+    global _stop
     global __isRunning
     _stop = True
     __isRunning = False
@@ -181,10 +181,10 @@ def move():
     }
     while True:
         if __isRunning:
-            if first_move and start_pick_up: # 当首次检测到物体时               
+            if first_move and start_pick_up: # 当首次检测到物体时
                 action_finish = False
                 set_rgb(detect_color)
-                setBuzzer(0.1)               
+                setBuzzer(0.1)
                 result = AK.setPitchRangeMoving((world_X, world_Y - 2, 5), -90, -90, 0) # 不填运行时间参数，自适应运行时间
                 if result == False:
                     unreachable = True
@@ -200,7 +200,7 @@ def move():
                     if not __isRunning: # 停止以及退出标志位检测
                         continue
                     AK.setPitchRangeMoving((world_x, world_y - 2, 5), -90, -90, 0, 20)
-                    time.sleep(0.02)                    
+                    time.sleep(0.02)
                     track = False
                 if start_pick_up: #如果物体没有移动一段时间，开始夹取
                     action_finish = False
@@ -211,29 +211,29 @@ def move():
                     servo2_angle = getAngle(world_X, world_Y, rotation_angle)
                     Board.setBusServoPulse(2, servo2_angle, 500)
                     time.sleep(0.8)
-                    
+
                     if not __isRunning:
                         continue
                     AK.setPitchRangeMoving((world_X, world_Y, 2), -90, -90, 0, 1000)  # 降低高度
                     time.sleep(2)
-                    
+
                     if not __isRunning:
                         continue
                     Board.setBusServoPulse(1, servo1, 500)  # 夹持器闭合
                     time.sleep(1)
-                    
+
                     if not __isRunning:
                         continue
                     Board.setBusServoPulse(2, 500, 500)
                     AK.setPitchRangeMoving((world_X, world_Y, 12), -90, -90, 0, 1000)  # 机械臂抬起
                     time.sleep(1)
-                    
+
                     if not __isRunning:
                         continue
                     # 对不同颜色方块进行分类放置
-                    result = AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0)   
+                    result = AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0)
                     time.sleep(result[2]/1000)
-                    
+
                     if not __isRunning:
                         continue
                     servo2_angle = getAngle(coordinate[detect_color][0], coordinate[detect_color][1], -90)
@@ -244,19 +244,19 @@ def move():
                         continue
                     AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], coordinate[detect_color][2] + 3), -90, -90, 0, 500)
                     time.sleep(0.5)
-                    
+
                     if not __isRunning:
                         continue
                     AK.setPitchRangeMoving((coordinate[detect_color]), -90, -90, 0, 1000)
                     time.sleep(0.8)
-                    
+
                     if not __isRunning:
                         continue
                     Board.setBusServoPulse(1, servo1 - 200, 500)  # 爪子张开，放下物体
                     time.sleep(0.8)
-                    
+
                     if not __isRunning:
-                        continue                    
+                        continue
                     AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0, 800)
                     time.sleep(0.8)
 
@@ -306,24 +306,24 @@ def run(img):
     global world_x, world_y
     global start_count_t1, t1
     global start_pick_up, first_move
-    
+
     img_copy = img.copy()
     img_h, img_w = img.shape[:2]
     cv2.line(img, (0, int(img_h / 2)), (img_w, int(img_h / 2)), (0, 0, 200), 1)
     cv2.line(img, (int(img_w / 2), 0), (int(img_w / 2), img_h), (0, 0, 200), 1)
-    
+
     if not __isRunning:
         return img
-     
+
     frame_resize = cv2.resize(img_copy, size, interpolation=cv2.INTER_NEAREST)
     frame_gb = cv2.GaussianBlur(frame_resize, (11, 11), 11)
     #如果检测到某个区域有识别到的物体，则一直检测该区域直到没有为止
     if get_roi and start_pick_up:
         get_roi = False
-        frame_gb = getMaskROI(frame_gb, roi, size)    
-    
+        frame_gb = getMaskROI(frame_gb, roi, size)
+
     frame_lab = cv2.cvtColor(frame_gb, cv2.COLOR_BGR2LAB)  # 将图像转换到LAB空间
-    
+
     area_max = 0
     areaMaxContour = 0
     if not start_pick_up:
@@ -344,8 +344,8 @@ def run(img):
 
             img_centerx, img_centery = getCenter(rect, roi, size, square_length)  # 获取木块中心坐标
             world_x, world_y = convertCoordinate(img_centerx, img_centery, size) #转换为现实世界坐标
-            
-            
+
+
             cv2.drawContours(img, [box], -1, range_rgb[detect_color], 2)
             cv2.putText(img, '(' + str(world_x) + ',' + str(world_y) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, range_rgb[detect_color], 1) #绘制中心点
@@ -385,7 +385,7 @@ if __name__ == '__main__':
         img = my_camera.frame
         if img is not None:
             frame = img.copy()
-            Frame = run(frame)           
+            Frame = run(frame)
             cv2.imshow('Frame', Frame)
             key = cv2.waitKey(1)
             if key == 27:

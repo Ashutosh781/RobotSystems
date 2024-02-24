@@ -29,7 +29,7 @@ def getBusServoStatus():
     print('Pulse: {}\nTemp:  {}\nVin:   {}\n'.format(Pulse, Temp, Vin)) # 打印状态信息
     time.sleep(0.5) # 延时方便查看
 
-while True:   
+while True:
     Board.setBusServoPulse(2, 500, 1000) # 2号舵机转到500位置用时1000ms
     time.sleep(1)
     getBusServoStatus()

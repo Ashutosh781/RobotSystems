@@ -20,7 +20,7 @@ FUNCTIONS = {
     3: ColorSorting,     # 颜色分拣
     4: ColorPalletizing, # 智能码垛
     5: ASRControl,       # 语音控制
-    6: Calibrating,      # 位置校准 
+    6: Calibrating,      # 位置校准
 }
 
 def doHeartbeat(tmp=()):

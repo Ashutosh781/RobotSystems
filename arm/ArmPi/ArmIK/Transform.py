@@ -74,7 +74,7 @@ def getMaskROI(frame, roi, size):
     black_img = np.zeros([size[1], size[0]], dtype=np.uint8)
     black_img = cv2.cvtColor(black_img, cv2.COLOR_GRAY2RGB)
     black_img[y_min:y_max, x_min:x_max] = frame[y_min:y_max, x_min:x_max]
-    
+
     return black_img
 
 # 获取木块中心坐标
@@ -83,7 +83,7 @@ def getCenter(rect, roi, size, square_length):
     x_min, x_max, y_min, y_max = roi
     #根据木块中心的坐标，来选取最靠近图像中心的顶点，作为计算准确中心的基准
     if rect[0][0] >= size[0]/2:
-        x = x_max 
+        x = x_max
     else:
         x = x_min
     if rect[0][1] >= size[1]/2:
@@ -116,7 +116,7 @@ def getCenter(rect, roi, size, square_length):
 def getAngle(x, y, angle):
     theta6 = round(math.degrees(math.atan2(abs(x), abs(y))), 1)
     angle = abs(angle)
-    
+
     if x < 0:
         if y < 0:
             angle1 = -(90 + theta6 - angle)

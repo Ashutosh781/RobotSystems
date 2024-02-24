@@ -30,7 +30,7 @@ class MJPG_Handler(BaseHTTPRequestHandler):
             if img_show is not None:
                 try:
                     l_quality = (int(cv2.IMWRITE_JPEG_QUALITY), 100)
-                    ret, jpg = cv2.imencode('.jpg', img_show, l_quality) 
+                    ret, jpg = cv2.imencode('.jpg', img_show, l_quality)
                     jpg_bytes = jpg.tobytes()
                     self.send_response(200)
                     self.send_header('Content-type','image/jpeg')

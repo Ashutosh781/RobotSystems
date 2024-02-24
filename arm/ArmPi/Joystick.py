@@ -58,7 +58,7 @@ while True:
             js.quit()
             pygame.joystick.quit()
     if connected is True:
-        pygame.event.pump()      
+        pygame.event.pump()
         try:
             if js.get_button(key_map["PSB_R1"]) :
                 change[0] -= step_width
@@ -84,12 +84,12 @@ while True:
                 change[2] += step_width
                 change[2] = 1000 if change[2] > 1000 else change[2]
                 cmd["params"] = [20, 1, 3, change[2]]
-                r = requests.post(url, json = cmd).json() 
+                r = requests.post(url, json = cmd).json()
             if js.get_button(key_map["PSB_L2"]) :
                 change[2] -= step_width
                 change[2] = 0 if change[2] < 0 else change[2]
                 cmd["params"] = [20, 1, 3, change[2]]
-                r = requests.post(url, json = cmd).json() 
+                r = requests.post(url, json = cmd).json()
             if js.get_button(key_map["PSB_TRIANGLE"]) :
                 change[3] += step_width
                 change[3] = 1000 if change[3] > 1000 else change[3]
@@ -131,7 +131,7 @@ while True:
                 change[5] = 1000 if change[5] > 1000 else change[5]
                 cmd["params"] = [20, 1, 6, change[5]]
                 r = requests.post(url, json = cmd).json()
-            elif lx > 0.5:             
+            elif lx > 0.5:
                 change[5] -= step_width
                 change[5] = 0 if change[5] < 0 else change[5]
                 cmd["params"] = [20, 1, 6, change[5]]
@@ -174,17 +174,17 @@ while True:
                 change[3] -= step_width
                 change[3] = 0 if change[3] < 0 else change[3]
                 cmd["params"] = [20, 1, 4, change[3]]
-                r = requests.post(url, json = cmd).json() 
+                r = requests.post(url, json = cmd).json()
             elif ry < -0.5:
                 change[3] += step_width
                 change[3] = 1000 if change[3] > 1000 else change[3]
                 cmd["params"] = [20, 1, 4, change[3]]
-                r = requests.post(url, json = cmd).json()                  
+                r = requests.post(url, json = cmd).json()
             if js.get_button(key_map["PSB_START"]):
                 change = [500,500,136,931,795,500]
                 cmd["params"] =  [1000, 6, 1, 500, 2, 500, 3, 136, 4, 931, 5, 795, 6, 500]
-                r = requests.post(url, json = cmd).json()                
+                r = requests.post(url, json = cmd).json()
         except Exception as e:
             print(e)
-            connected = False          
+            connected = False
     time.sleep(0.06)

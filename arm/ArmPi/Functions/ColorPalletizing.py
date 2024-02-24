@@ -103,7 +103,7 @@ z_r = coordinate['red'][2]
 z_g = coordinate['green'][2]
 z_b = coordinate['blue'][2]
 z = z_r
-def reset(): 
+def reset():
     global _stop
     global count
     global get_roi
@@ -113,7 +113,7 @@ def reset():
     global start_pick_up
     global start_count_t1
     global z_r, z_g, z_b, z
-    
+
     count = 0
     _stop = False
     color_list = []
@@ -168,7 +168,7 @@ def move():
     global rotation_angle
     global world_X, world_Y
     global z_r, z_g, z_b, z
-    
+
     dz = 2.5
 
     while True:
@@ -181,7 +181,7 @@ def move():
                 z_r += dz
                 if z == 2 * dz + coordinate['red'][2]:
                     z_r = coordinate['red'][2]
-                if z == coordinate['red'][2]:  
+                if z == coordinate['red'][2]:
                     move_square = True
                     time.sleep(3)
                     move_square = False
@@ -218,11 +218,11 @@ def move():
 
                     if not __isRunning:
                         continue
-                    AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0, 1500) 
+                    AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0, 1500)
                     time.sleep(1.5)
-                    
+
                     if not __isRunning:
-                        continue                  
+                        continue
                     servo2_angle = getAngle(coordinate[detect_color][0], coordinate[detect_color][1], -90)
                     Board.setBusServoPulse(2, servo2_angle, 500)
                     time.sleep(0.5)
@@ -231,19 +231,19 @@ def move():
                         continue
                     AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], z + 3), -90, -90, 0, 500)
                     time.sleep(0.5)
-                    
+
                     if not __isRunning:
-                        continue                
+                        continue
                     AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], z), -90, -90, 0, 1000)
                     time.sleep(0.8)
 
                     if not __isRunning:
-                        continue 
+                        continue
                     Board.setBusServoPulse(1, servo1 - 200, 500)  # 爪子张开  ，放下物体
                     time.sleep(1)
 
                     if not __isRunning:
-                        continue 
+                        continue
                     AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0, 800)
                     time.sleep(0.8)
 
@@ -261,7 +261,7 @@ def move():
                 time.sleep(0.5)
                 Board.setBusServoPulse(2, 500, 500)
                 AK.setPitchRangeMoving((0, 10, 10), -30, -30, -90, 1500)
-                time.sleep(1.5)               
+                time.sleep(1.5)
             time.sleep(0.01)
 
 # 运行子线程
@@ -289,7 +289,7 @@ def run(img):
     global world_X, world_Y
     global start_count_t1, t1
     global detect_color, draw_color, color_list
- 
+
     img_copy = img.copy()
     img_h, img_w = img.shape[:2]
     cv2.line(img, (0, int(img_h / 2)), (img_w, int(img_h / 2)), (0, 0, 200), 1)
@@ -303,14 +303,14 @@ def run(img):
     #如果检测到某个区域有识别到的物体，则一直检测该区域直到没有为止
     if get_roi and not start_pick_up:
         get_roi = False
-        frame_gb = getMaskROI(frame_gb, roi, size)    
-    
+        frame_gb = getMaskROI(frame_gb, roi, size)
+
     frame_lab = cv2.cvtColor(frame_gb, cv2.COLOR_BGR2LAB)  # 将图像转换到LAB空间
 
     color_area_max = None
     max_area = 0
     areaMaxContour_max = 0
-    
+
     if not start_pick_up:
         for i in color_range:
             if i in __target_color:
@@ -327,12 +327,12 @@ def run(img):
         if max_area > 2500:  # 有找到最大面积
             rect = cv2.minAreaRect(areaMaxContour_max)
             box = np.int0(cv2.boxPoints(rect))
-            
+
             roi = getROI(box) #获取roi区域
             get_roi = True
 
             img_centerx, img_centery = getCenter(rect, roi, size, square_length)  # 获取木块中心坐标
-            
+
             world_x, world_y = convertCoordinate(img_centerx, img_centery, size) #转换为现实世界坐标
 
             if not start_pick_up:
@@ -392,12 +392,12 @@ def run(img):
             if not start_pick_up:
                 draw_color = (0, 0, 0)
                 detect_color = "None"
-    
+
     if move_square:
-        cv2.putText(img, "Make sure no blocks in the stacking area", (15, int(img.shape[0]/2)), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)    
-    
+        cv2.putText(img, "Make sure no blocks in the stacking area", (15, int(img.shape[0]/2)), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
+
     cv2.putText(img, "Color: " + detect_color, (10, img.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.65, draw_color, 2)
-    
+
     return img
 
 if __name__ == '__main__':
@@ -409,7 +409,7 @@ if __name__ == '__main__':
         img = my_camera.frame
         if img is not None:
             frame = img.copy()
-            Frame = run(frame)           
+            Frame = run(frame)
             cv2.imshow('Frame', Frame)
             key = cv2.waitKey(1)
             if key == 27:

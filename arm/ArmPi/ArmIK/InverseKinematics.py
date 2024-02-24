@@ -62,7 +62,7 @@ class IK:
             Alpha -= self.alpha
         #求底座旋转角度
         theta6 = degrees(atan2(Y, X))
- 
+
         P_O = sqrt(X*X + Y*Y) #P_到原点O距离
         CD = self.l4 * cos(radians(Alpha))
         PD = self.l4 * sin(radians(Alpha)) #当俯仰角为正时，PD为正，当俯仰角为负时，PD为负
@@ -102,7 +102,7 @@ class IK:
             theta3 += self.alpha
 
         return {"theta3":theta3, "theta4":theta4, "theta5":theta5, "theta6":theta6} # 有解时返回角度字典
-            
+
 if __name__ == '__main__':
     ik = IK('arm')
     ik.setLinkLength(L1=ik.l1 + 0.89, L4=ik.l4 - 0.3)

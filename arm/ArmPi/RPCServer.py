@@ -106,7 +106,7 @@ def GetBusServosDeviation(args):
     except Exception as e:
         print(e)
         ret = (False, __RPC_E03)
-    return ret 
+    return ret
 
 @dispatcher.add_method
 def SaveBusServosDeviation(args):
@@ -119,7 +119,7 @@ def SaveBusServosDeviation(args):
     except Exception as e:
         print(e)
         ret = (False, __RPC_E03)
-    return ret 
+    return ret
 
 @dispatcher.add_method
 def UnloadBusServo(args):
@@ -151,14 +151,14 @@ def GetBusServosPulse(args):
     except Exception as e:
         print(e)
         ret = (False, __RPC_E03)
-    return ret 
+    return ret
 
 @dispatcher.add_method
 def StopBusServo(args):
     ret = (True, ())
     if args != 'stopAction':
         return (False, __RPC_E01)
-    try:     
+    try:
         AGC.stop_action_group()
     except Exception as e:
         print(e)
@@ -174,9 +174,9 @@ def RunAction(args):
     except Exception as e:
         print(e)
         ret = (False, __RPC_E03)
-        
+
 @dispatcher.add_method
-def ArmMoveIk(*args):   
+def ArmMoveIk(*args):
     ret = (True, ())
     if len(args) != 7:
         return (False, __RPC_E01)
@@ -187,7 +187,7 @@ def ArmMoveIk(*args):
         print(e)
         ret = (False, __RPC_E03)
     return ret
-        
+
 @dispatcher.add_method
 def SetBrushMotor(*args, **kwargs):
     ret = (True, ())
@@ -280,7 +280,7 @@ def runbymainth(req, pas):
         return (False, __RPC_E05)
 
 @dispatcher.add_method
-def SetSonarDistanceThreshold(new_threshold = 30): 
+def SetSonarDistanceThreshold(new_threshold = 30):
     return runbymainth(Avoidance.setThreshold, (new_threshold,))
 
 @dispatcher.add_method

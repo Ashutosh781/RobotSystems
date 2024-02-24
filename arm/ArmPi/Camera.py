@@ -21,13 +21,13 @@ class Camera:
         self.opened = False
         #加载参数
         self.param_data = np.load(calibration_param_path + '.npz')
-        
+
         #获取参数
         self.mtx = self.param_data['mtx_array']
         self.dist = self.param_data['dist_array']
         self.newcameramtx, roi = cv2.getOptimalNewCameraMatrix(self.mtx, self.dist, (self.width, self.height), 0, (self.width, self.height))
         self.mapx, self.mapy = cv2.initUndistortRectifyMap(self.mtx, self.dist, None, self.newcameramtx, (self.width,self.height), 5)
-        
+
         self.th = threading.Thread(target=self.camera_task, args=(), daemon=True)
         self.th.start()
 
@@ -72,7 +72,7 @@ class Camera:
                     cap = cv2.VideoCapture(-1)
                     ret, _ = cap.read()
                     if ret:
-                        self.cap = cap              
+                        self.cap = cap
                 else:
                     time.sleep(0.01)
             except Exception as e:

@@ -49,10 +49,10 @@ def exit():
 
 def run(img):
     global __isRunning
-    
+
     if not __isRunning:
         return img
-    
+
     img_h, img_w = img.shape[:2]
     cv2.line(img, (0, int(img_h / 2)), (img_w, int(img_h / 2)), (0, 0, 255), 2)
     cv2.line(img, (int(img_w / 2), 0), (int(img_w / 2), img_h), (0, 0, 255), 2)
@@ -67,7 +67,7 @@ if __name__ == '__main__':
         img = my_camera.frame
         if img is not None:
             frame = img.copy()
-            Frame = run(frame)           
+            Frame = run(frame)
             cv2.imshow('Frame', Frame)
             key = cv2.waitKey(1)
             if key == 27:

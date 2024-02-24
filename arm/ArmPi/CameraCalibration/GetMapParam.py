@@ -36,7 +36,7 @@ while True:
         img = dst.copy()
 
         cv2.line(dst, (0, int(h / 2)), (w, int(h / 2)), (0, 0, 255), 2)
-        cv2.line(dst, (int(w / 2), 0), (int(w / 2), h), (0, 0, 255), 2)        
+        cv2.line(dst, (int(w / 2), 0), (int(w / 2), h), (0, 0, 255), 2)
         cv2.imshow('dst',dst)
         key = cv2.waitKey(1)
         if key == 32:
@@ -51,10 +51,10 @@ while True:
                 for i in corners2:
                     count += 1
                     if count != 1 and (count - 1)%7 != 0:
-                        a_ = (last_i[0] - i[0])**2    
+                        a_ = (last_i[0] - i[0])**2
                         sum_.append(np.sqrt(np.sum(a_)))
                     last_i = i
-                
+
                 map_param = np.mean(sum_)
                 map_param = corners_length/map_param
 

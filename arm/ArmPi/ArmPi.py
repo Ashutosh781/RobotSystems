@@ -25,10 +25,10 @@ def startArmPi():
     RPCServer.QUEUE = QUEUE_RPC
 
     threading.Thread(target=RPCServer.startRPCServer,
-                     daemon=True).start()  # rpc服务器
+                    daemon=True).start()  # rpc服务器
     threading.Thread(target=MjpgServer.startMjpgServer,
-                     daemon=True).start()  # mjpg流服务器
-    
+                    daemon=True).start()  # mjpg流服务器
+
     loading_picture = cv2.imread('/home/pi/ArmPi/CameraCalibration/loading.jpg')
     cam = Camera.Camera()  # 相机读取
     Running.cam = cam

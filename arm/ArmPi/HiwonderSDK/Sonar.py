@@ -46,12 +46,12 @@ class Sonar:
             return self.getDistance()
         else:
             raise AttributeError('Unknow attribute : %s'%attr)
-    
+
     #设置灯的模式，0为彩灯模式，1为呼吸灯模式
     def setRGBMode(self, mode):
         with SMBus(self.i2c) as bus:
             bus.write_byte_data(self.i2c_addr, self.__RGB_MODE, mode)
-    
+
     #设置灯的颜色
     #参数1：0表示左边的灯，1表示右边
     #参数2：颜色的rgb比例值，以元组形式传入，范围0-255, 依次为r，g，b
@@ -61,7 +61,7 @@ class Sonar:
             bus.write_byte_data(self.i2c_addr, start_reg, rgb[0])
             bus.write_byte_data(self.i2c_addr, start_reg+1, rgb[1])
             bus.write_byte_data(self.i2c_addr, start_reg+2, rgb[2])
-    
+
     #呼吸灯模式
     #参数1：0表示左边的灯，1表示右边
     #参数2：颜色通道， 0表示然，1表示g， 2表示b

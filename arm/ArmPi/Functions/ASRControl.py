@@ -114,7 +114,7 @@ def reset():
     global start_count_t3
     global __target_color, detect_color
 
-    count = 0  
+    count = 0
     _stop = False
     get_roi = False
     __isRunning = False
@@ -125,7 +125,7 @@ def reset():
     start_count_t2 = True
     start_count_t3 = True
     __target_color = ()
-    
+
 def init():
     print("ASRControl Init")
     initMove()
@@ -139,7 +139,7 @@ def start():
     my_asr.setMode(3)
     my_asr.setMode(2)
     my_asr.getResult()
-    __isRunning = True   
+    __isRunning = True
 
 def stop():
     global _stop
@@ -161,20 +161,20 @@ size = (640, 480)
 rotation_angle = 0
 unreachable = False
 world_X, world_Y = 0, 0
-def move():   
+def move():
     global rect
     global _stop
     global get_roi
     global __isRunning
     global unreachable
     global detect_color
-    global start_pick_up  
+    global start_pick_up
     global rotation_angle
     global start_count_t1
     global start_count_t2
     global start_count_t3
     global world_X, world_Y
-    
+
     #放置坐标
     coordinate = {
         'red':   (-15 + 0.5, 12 - 0.5, 1.5),
@@ -182,7 +182,7 @@ def move():
         'blue':  (-15 + 0.5, 0 - 0.5,  1.5),
     }
     while True:
-        if __isRunning:        
+        if __isRunning:
             if detect_color != 'None' and start_pick_up:  #如果检测到方块没有移动一段时间后，开始夹取
                 set_rgb(detect_color)
                 result = AK.setPitchRangeMoving((world_X, world_Y, 7), -90, -90, 0)  #移到目标位置，高度7cm
@@ -198,7 +198,7 @@ def move():
                     #计算夹持器需要旋转的角度
                     servo2_angle = getAngle(world_X, world_Y, rotation_angle)
                     Board.setBusServoPulse(2, servo2_angle, 500)
-                    time.sleep(0.5) 
+                    time.sleep(0.5)
 
                     if not __isRunning:
                         continue
@@ -219,23 +219,23 @@ def move():
                     if not __isRunning:
                         continue
                     #对不同颜色方块进行分类放置
-                    result = AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0)   
+                    result = AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0)
                     time.sleep(result[2]/1000)
                     Board.setBusServoPulse(2, 500, 500)
-                    
+
                     if not __isRunning:
-                        continue                   
+                        continue
                     servo2_angle = getAngle(coordinate[detect_color][0], coordinate[detect_color][1], -90)
                     Board.setBusServoPulse(2, servo2_angle, 500)
                     time.sleep(0.5)
-                    
+
                     if not __isRunning:
                         continue
                     AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], coordinate[detect_color][2] + 3), -90, -90, 0, 500)
                     time.sleep(0.5)
-                    
+
                     if not __isRunning:
-                        continue                    
+                        continue
                     AK.setPitchRangeMoving((coordinate[detect_color]), -90, -90, 0, 1000)
                     time.sleep(0.8)
 
@@ -248,12 +248,12 @@ def move():
                         continue
                     AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0, 800)
                     time.sleep(0.8)
-                    
+
                     initMove()  #回到初始位置
                     time.sleep(1.5)
                     my_tts.TTSModuleSpeak("[h0][v10][m53]", "搬运完成")
-                    time.sleep(1) 
-                    get_roi = False    
+                    time.sleep(1)
+                    get_roi = False
                     detect_color = 'None'
                     start_count_t1 = True
                     start_count_t2 = True
@@ -269,11 +269,11 @@ def move():
                 AK.setPitchRangeMoving((0, 10, 10), -30, -30, -90, 1500)
                 time.sleep(1.5)
             time.sleep(0.01)
-          
+
 #运行子线程
 th = threading.Thread(target=move)
 th.setDaemon(True)
-th.start()    
+th.start()
 
 roi = ()
 center_list = []
@@ -290,11 +290,11 @@ def run(img):
     global center_list
     global unreachable
     global __isRunning
-    global start_pick_up   
+    global start_pick_up
     global rotation_angle
     global last_x, last_y
-    global world_X, world_Y 
-    global __target_color, detect_color  
+    global world_X, world_Y
+    global __target_color, detect_color
     global start_count_t1, start_count_t2, start_count_t3
 
     img_copy = img.copy()
@@ -310,8 +310,8 @@ def run(img):
     #如果检测到某个区域有识别到的物体，则一直检测该区域直到没有为止
     if get_roi and start_pick_up:
         get_roi = False
-        frame_gb = getMaskROI(frame_gb, roi, size)    
-    
+        frame_gb = getMaskROI(frame_gb, roi, size)
+
     frame_lab = cv2.cvtColor(frame_gb, cv2.COLOR_BGR2LAB)  #将图像转换到LAB空间
     data = my_asr.getResult()
     if data == 2:
@@ -341,13 +341,13 @@ def run(img):
             if area_max > 2500:  # 有找到最大面积
                 rect = cv2.minAreaRect(areaMaxContour)
                 box = np.int0(cv2.boxPoints(rect))
-                
+
                 roi = getROI(box) #获取roi区域
                 get_roi = True
 
                 img_centerx, img_centery = getCenter(rect, roi, size, square_length)  # 获取木块中心坐标
                 world_x, world_y = convertCoordinate(img_centerx, img_centery, size) #转换为现实世界坐标
-                if not start_pick_up: 
+                if not start_pick_up:
                     cv2.drawContours(img, [box], -1, range_rgb[detect_color], 2)
                     cv2.putText(img, '(' + str(world_x) + ',' + str(world_y) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, range_rgb[detect_color], 1) #绘制中心点
@@ -366,7 +366,7 @@ def run(img):
                             start_count_t1 = True
                             world_X, world_Y = np.mean(np.array(center_list).reshape(count, 2), axis=0)
                             center_list = []
-                            count = 0 
+                            count = 0
                             if detect_color == 'red':
                                 my_tts.TTSModuleSpeak("[h0][v10][m53]", "找到红色")
                             elif detect_color == 'green':
@@ -420,7 +420,7 @@ if __name__ == '__main__':
         img = my_camera.frame
         if img is not None:
             frame = img.copy()
-            Frame = run(frame)           
+            Frame = run(frame)
             cv2.imshow('Frame', Frame)
             key = cv2.waitKey(1)
             if key == 27:
