@@ -18,6 +18,7 @@ class ColorTrack():
 
     def __init__(self):
 
+        # For color of bounding box
         self.range_rgb = {
             'red': (0, 0, 255),
             'blue': (255, 0, 0),
@@ -26,14 +27,7 @@ class ColorTrack():
             'white': (255, 255, 255),
         }
 
-        # Coordinate of the color block
-        self.coordinate = {
-            'red':   (-15 + 0.5, 12 - 0.5, 1.5),
-            'green': (-15 + 0.5, 6 - 0.5,  1.5),
-            'blue':  (-15 + 0.5, 0 - 0.5,  1.5),
-        }
-
-        # Color range
+        # Color range to detect
         self.color_range = {
             'red': [(0, 151, 100), (255, 255, 255)],
             'green': [(0, 0, 0), (255, 115, 255)],
@@ -47,16 +41,18 @@ class ColorTrack():
 
         # Variables
         self.get_roi = False
-        self._target_color = []
         self.size = (640, 480)
         self.roi = ()
+        self.image_center_distance = 20
+        self.square_length = 3
+
+        # Target colors
+        self._target_color = []
 
         # Parameters from the camera calibration
         self.map_param_path = '/home/pi/ArmPi/CameraCalibration/map_param.npz'
         self.param_data = np.load(self.map_param_path)
         self.map_param_ = self.param_data['map_param']
-        self.image_center_distance = 20
-        self.square_length = 3
 
     def setTargetColor(self, target_color:list):
         """Set detection color"""
@@ -183,7 +179,6 @@ class ColorTrack():
         frame_resize = cv2.resize(img_copy, self.size, interpolation=cv2.INTER_NEAREST)
         frame_gb = cv2.GaussianBlur(frame_resize, (11, 11), 11)
 
-        # If object detected in certain area
         # This forces only one object to be detected at a time
         if self.get_roi:
             self.get_roi = False
@@ -249,10 +244,13 @@ if __name__ == '__main__':
         if img is not None:
             frame = img.copy()
             Frame = ct.run(frame)
+
             cv2.imshow('Frame', Frame)
             key = cv2.waitKey(1)
+
             if key == 27:
                 # Press 'ESC' to exit
                 break
+
     my_camera.camera_close()
     cv2.destroyAllWindows()
