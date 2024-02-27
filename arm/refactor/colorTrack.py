@@ -1,16 +1,10 @@
 #!/usr/bin/python3
 # coding=utf8
-import sys
-sys.path.append('/home/pi/ArmPi/')
-import cv2
-import time
-import math
-import Camera
-import numpy as np
 
-if sys.version_info.major == 2:
-    print('Please run this program with python3!')
-    sys.exit(0)
+import cv2
+import math
+import numpy as np
+from camera import Camera
 
 
 class ColorTrack():
@@ -236,11 +230,11 @@ if __name__ == '__main__':
     ct.setTargetColor(target_color)
 
     # Camera instance
-    my_camera = Camera.Camera()
-    my_camera.camera_open()
+    cam = Camera()
+    cam.camera_open()
 
     while True:
-        img = my_camera.frame
+        img = cam.frame
         if img is not None:
             frame = img.copy()
             Frame = ct.run(frame)
@@ -252,5 +246,5 @@ if __name__ == '__main__':
                 # Press 'ESC' to exit
                 break
 
-    my_camera.camera_close()
+    cam.camera_close()
     cv2.destroyAllWindows()
