@@ -12,7 +12,7 @@ from Camera import Camera
 
 
 class Perception():
-    """Color tracking class"""
+    """Perception class to detect objects and return their coordinates and angles"""
 
     def __init__(self):
 
@@ -38,7 +38,6 @@ class Perception():
         self._possible_color = ['red', 'green', 'blue']
 
         # Variables
-        self.get_roi = False
         self.size = (640, 480)
         self.roi = ()
         self.image_center_distance = 20
@@ -83,28 +82,6 @@ class Perception():
                     area_max_contour = c
 
         return area_max_contour, contour_area_max
-
-    def getMaskROI(self, frame, roi, size):
-        x_min, x_max, y_min, y_max = roi
-        x_min -= 10
-        x_max += 10
-        y_min -= 10
-        y_max += 10
-
-        if x_min < 0:
-            x_min = 0
-        if x_max > size[0]:
-            x_max = size[0]
-        if y_min < 0:
-            y_min = 0
-        if y_max > size[1]:
-            y_max = size[1]
-
-        black_img = np.zeros([size[1], size[0]], dtype=np.uint8)
-        black_img = cv2.cvtColor(black_img, cv2.COLOR_GRAY2RGB)
-        black_img[y_min:y_max, x_min:x_max] = frame[y_min:y_max, x_min:x_max]
-
-        return black_img
 
     def getROI(self, box):
         x_min = min(box[0, 0], box[1, 0], box[2, 0], box[3, 0])
@@ -174,7 +151,7 @@ class Perception():
 
         Returns:
             img: Image with detected objects in bounding boxes
-            coordinates: List of detected object coordinates
+            location: Dictionary with key-color detected and value-object coordinates and angles
         """
 
         img_copy = img.copy()
@@ -185,19 +162,18 @@ class Perception():
         frame_resize = cv2.resize(img_copy, self.size, interpolation=cv2.INTER_NEAREST)
         frame_gb = cv2.GaussianBlur(frame_resize, (11, 11), 11)
 
-        # This forces only one object to be detected at a time
-        if self.get_roi:
-            self.get_roi = False
-            frame_gb = self.getMaskROI(frame_gb, self.roi, self.size)
-
         # Convert image to LAB color space
         frame_lab = cv2.cvtColor(frame_gb, cv2.COLOR_BGR2LAB)
 
         area_max = 0
         areaMaxContour = 0
 
-        # List to store the coordinates of the detected objects
-        coordinates = []
+        # Dictionary to store the coordinates and angles of the detected objects
+        location = {}
+
+        # If no color is set, detect all possible colors
+        if len(self._target_color) == 0:
+            self._target_color = self._possible_color
 
         for i in self._target_color:
             # Mask the image
@@ -216,36 +192,31 @@ class Perception():
 
                 # Get ROI
                 self.roi = self.getROI(box)
-                # self.get_roi = True
 
                 # Get the center of the object
                 img_centerx, img_centery = self.getCenter(rect, self.roi, self.size, self.square_length)
                 # Convert the center of the object to the world coordinate
                 center_x, center_y = self.convertCoordinate(img_centerx, img_centery, self.size)
+                angle = rect[2]
 
-                # Store the coordinates of the detected object
-                coordinates.append((center_x, center_y))
+                location[i] = [(center_x, center_y), angle]
 
                 cv2.drawContours(img, [box], -1, self.range_rgb[i], 2)
                 # Draw the center of the object
                 cv2.putText(img, '(' + str(center_x) + ',' + str(center_y) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.range_rgb[i], 1)
 
-        return img, coordinates
+        return img, location
 
     def run(self):
         """Main run loop"""
-
-        # If no color is set, detect all possible colors
-        if len(self._target_color) == 0:
-            self._target_color = self._possible_color
 
         # Continuously process the image
         while True:
             img = self.camera.frame
             if img is not None:
                 frame = img.copy()
-                frame_processed, coordinates = self.process_image(frame)
+                frame_processed, location = self.process_image(frame)
 
                 cv2.imshow('Frame', frame_processed)
                 key = cv2.waitKey(1)
@@ -261,7 +232,7 @@ class Perception():
 
 if __name__ == '__main__':
 
-    # Color tracking module
+    # Perception module
     ct = Perception()
     # Run with detecting all possible colors
     ct.run()
