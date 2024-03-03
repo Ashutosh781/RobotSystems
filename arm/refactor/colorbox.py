@@ -8,9 +8,9 @@ from types import SimpleNamespace
 
 
 Modes = SimpleNamespace(
-    ONE='one', # Pick and place one box
-    SORT='sort', # Sort all the boxes
-    STACK='stack' # Stack the boxes
+    ONE='Pick-Place one box', # Pick and place one box
+    SORT='Sort boxes', # Sort all the boxes
+    STACK='Stack boxes' # Stack the boxes
 )
 
 manual = '''
@@ -114,7 +114,7 @@ class ColorBox():
 
                 # Only proceed if color boxes are detected and 'c' is pressed
                 if len(detected_colors) > 0 and key == ord('c'):
-                    print("Executing motion...")
+                    print(f"Executing motion {self.mode}...")
 
                     # For Modes.ONE pick place only the target color box
                     if self.mode == Modes.ONE:
