@@ -149,14 +149,5 @@ if __name__ == '__main__':
 
     # Color box manipulation
     cb = ColorBox()
-
-    # Parameters
-    mode = Modes.ONE
-    target_color = 'red'
-
-    # Set mode and target color
-    cb.setMode(mode)
-    cb.setTarget(target_color)
-
-    # Run
+    # Run with default mode
     cb.run()
