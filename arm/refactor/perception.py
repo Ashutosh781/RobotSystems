@@ -52,6 +52,10 @@ class Perception():
         self.param_data = np.load(self.map_param_path)
         self.map_param_ = self.param_data['map_param']
 
+        # Camera instance
+        self.camera = Camera()
+        self.camera.camera_open()
+
     def setTargetColor(self, target_color:list):
         """Set detection color"""
 
@@ -163,10 +167,14 @@ class Perception():
 
         return  x, y
 
-    def run(self, img):
-        """Run the color tracking module
+    def process_image(self, img):
+        """Process the image and return detected object coordinates
         Args:
             img: Image to process
+
+        Returns:
+            img: Image with detected objects in bounding boxes
+            coordinates: List of detected object coordinates
         """
 
         img_copy = img.copy()
@@ -187,10 +195,6 @@ class Perception():
 
         area_max = 0
         areaMaxContour = 0
-
-        if len(self._target_color) == 0:
-            # If no color is set, detect all possible colors
-            self._target_color = self._possible_color
 
         # List to store the coordinates of the detected objects
         coordinates = []
@@ -229,32 +233,35 @@ class Perception():
 
         return img, coordinates
 
+    def run(self):
+        """Main run loop"""
+
+        # If no color is set, detect all possible colors
+        if len(self._target_color) == 0:
+            self._target_color = self._possible_color
+
+        # Continuously process the image
+        while True:
+            img = self.camera.frame
+            if img is not None:
+                frame = img.copy()
+                frame_processed, coordinates = self.process_image(frame)
+
+                cv2.imshow('Frame', frame_processed)
+                key = cv2.waitKey(1)
+
+                if key == 27:
+                    # Press 'ESC' to exit
+                    break
+
+        # Close the camera and destroy the windows
+        self.camera.camera_close()
+        cv2.destroyAllWindows()
+
 
 if __name__ == '__main__':
 
     # Color tracking module
     ct = Perception()
-
-    # Set the target color
-    target_color = ct._possible_color
-    ct.setTargetColor(target_color)
-
-    # Camera instance
-    cam = Camera()
-    cam.camera_open()
-
-    while True:
-        img = cam.frame
-        if img is not None:
-            frame = img.copy()
-            Frame, coordinates = ct.run(frame)
-
-            cv2.imshow('Frame', Frame)
-            key = cv2.waitKey(1)
-
-            if key == 27:
-                # Press 'ESC' to exit
-                break
-
-    cam.camera_close()
-    cv2.destroyAllWindows()
+    # Run with detecting all possible colors
+    ct.run()
