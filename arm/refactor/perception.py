@@ -4,10 +4,14 @@
 import cv2
 import math
 import numpy as np
-from camera import Camera
+
+# Imports from existing ArmPi code
+import sys
+sys.path.append('/home/pi/ArmPi/')
+from Camera import Camera
 
 
-class ColorTrack():
+class Perception():
     """Color tracking class"""
 
     def __init__(self):
@@ -188,6 +192,9 @@ class ColorTrack():
             # If no color is set, detect all possible colors
             self._target_color = self._possible_color
 
+        # List to store the coordinates of the detected objects
+        coordinates = []
+
         for i in self._target_color:
             # Mask the image
             frame_mask = cv2.inRange(frame_lab, self.color_range[i][0], self.color_range[i][1])
@@ -210,20 +217,23 @@ class ColorTrack():
                 # Get the center of the object
                 img_centerx, img_centery = self.getCenter(rect, self.roi, self.size, self.square_length)
                 # Convert the center of the object to the world coordinate
-                world_x, world_y = self.convertCoordinate(img_centerx, img_centery, self.size)
+                center_x, center_y = self.convertCoordinate(img_centerx, img_centery, self.size)
+
+                # Store the coordinates of the detected object
+                coordinates.append((center_x, center_y))
 
                 cv2.drawContours(img, [box], -1, self.range_rgb[i], 2)
                 # Draw the center of the object
-                cv2.putText(img, '(' + str(world_x) + ',' + str(world_y) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
+                cv2.putText(img, '(' + str(center_x) + ',' + str(center_y) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.range_rgb[i], 1)
 
-        return img
+        return img, coordinates
 
 
 if __name__ == '__main__':
 
     # Color tracking module
-    ct = ColorTrack()
+    ct = Perception()
 
     # Set the target color
     target_color = ct._possible_color
@@ -237,7 +247,7 @@ if __name__ == '__main__':
         img = cam.frame
         if img is not None:
             frame = img.copy()
-            Frame = ct.run(frame)
+            Frame, coordinates = ct.run(frame)
 
             cv2.imshow('Frame', Frame)
             key = cv2.waitKey(1)
