@@ -2,7 +2,7 @@
 # coding=utf8
 
 import time
-import math
+from utils import Utils
 
 # Imports from existing ArmPi code
 import sys
@@ -29,35 +29,11 @@ class Motion():
         # Parameters
         self.gripper_close = 500
 
+        # Utils instance
+        self.ut = Utils()
+
         # Home position
         self.home_position()
-
-    def getAngle(self, xy, angle):
-        theta6 = round(math.degrees(math.atan2(abs(xy[0]), abs(xy[1]))), 1)
-        angle = abs(angle)
-
-        if xy[0] < 0:
-            if xy[1] < 0:
-                angle1 = -(90 + theta6 - angle)
-            else:
-                angle1 = theta6 - angle
-        else:
-            if xy[1] < 0:
-                angle1 = theta6 + angle
-            else:
-                angle1 = 90 - theta6 - angle
-
-        if angle1 > 0:
-            angle2 = angle1 - 90
-        else:
-            angle2 = angle1 + 90
-
-        if abs(angle1) < abs(angle2):
-            servo_angle = int(500 + round(angle1 * 1000 / 240))
-        else:
-            servo_angle = int(500 + round(angle2 * 1000 / 240))
-
-        return servo_angle
 
     def home_position(self):
         """Move the arm to the home position"""
@@ -79,7 +55,7 @@ class Motion():
         # Open the gripper
         Board.setBusServoPulse(1, self.gripper_close - 280, 500)
         # Rotate the gripper
-        servo2_angle = self.getAngle(xy, angle)
+        servo2_angle = self.ut.getAngle(xy, angle)
         Board.setBusServoPulse(2, servo2_angle, 500)
         time.sleep(0.8)
 
@@ -108,7 +84,7 @@ class Motion():
         self.move_to(xyz=(self.block_xyz[color][0], self.block_xyz[color][1], self.block_xyz[color][2] + 5))
 
         # Rotate the gripper
-        servo2_angle = self.getAngle(self.block_xyz[color], -90)
+        servo2_angle = self.ut.getAngle(self.block_xyz[color], -90)
         Board.setBusServoPulse(2, servo2_angle, 500)
         time.sleep(0.5)
 

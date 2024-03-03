@@ -4,6 +4,7 @@
 import cv2
 import math
 import numpy as np
+from utils import Utils
 
 # Imports from existing ArmPi code
 import sys
@@ -46,14 +47,12 @@ class Perception():
         # Target colors
         self._target_color = []
 
-        # Parameters from the camera calibration
-        self.map_param_path = '/home/pi/ArmPi/CameraCalibration/map_param.npz'
-        self.param_data = np.load(self.map_param_path)
-        self.map_param_ = self.param_data['map_param']
-
         # Camera instance
         self.camera = Camera()
         self.camera.camera_open()
+
+        # Utils instance
+        self.ut = Utils()
 
     def setTargetColor(self, target_color:list):
         """Set detection color"""
@@ -82,67 +81,6 @@ class Perception():
                     area_max_contour = c
 
         return area_max_contour, contour_area_max
-
-    def getROI(self, box):
-        x_min = min(box[0, 0], box[1, 0], box[2, 0], box[3, 0])
-        x_max = max(box[0, 0], box[1, 0], box[2, 0], box[3, 0])
-        y_min = min(box[0, 1], box[1, 1], box[2, 1], box[3, 1])
-        y_max = max(box[0, 1], box[1, 1], box[2, 1], box[3, 1])
-
-        return (x_min, x_max, y_min, y_max)
-
-    def leMap(self, x, in_min, in_max, out_min, out_max):
-        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
-
-    def world2pixel(self, l, size):
-        l_ = round(l/self.map_param_, 2)
-        l_ = self.leMap(l_, 0, 640, 0, size[0])
-
-        return l_
-
-    def convertCoordinate(self, x, y, size):
-        x = self.leMap(x, 0, size[0], 0, 640)
-        x = x - 320
-        x_ = round(x * self.map_param_, 2)
-
-        y = self.leMap(y, 0, size[1], 0, 480)
-        y = 240 - y
-        y_ = round(y * self.map_param_ + self.image_center_distance, 2)
-
-        return x_, y_
-
-    def getCenter(self, rect, roi, size, square_length):
-        x_min, x_max, y_min, y_max = roi
-        # Select vertex closest to the center of the image based on the center of the object
-        if rect[0][0] >= size[0]/2:
-            x = x_max
-        else:
-            x = x_min
-        if rect[0][1] >= size[1]/2:
-            y = y_max
-        else:
-            y = y_min
-
-        # Calculate diagonal length
-        square_l = square_length/math.cos(math.pi/4)
-
-        # Convert length to pixel length
-        square_l = self.world2pixel(square_l, size)
-
-        # Calculate center based on rotation angle of the object
-        dx = abs(math.cos(math.radians(45 - abs(rect[2]))))
-        dy = abs(math.sin(math.radians(45 + abs(rect[2]))))
-
-        if rect[0][0] >= size[0] / 2:
-            x = round(x - (square_l/2) * dx, 2)
-        else:
-            x = round(x + (square_l/2) * dx, 2)
-        if rect[0][1] >= size[1] / 2:
-            y = round(y - (square_l/2) * dy, 2)
-        else:
-            y = round(y + (square_l/2) * dy, 2)
-
-        return  x, y
 
     def process_image(self, img):
         """Process the image and return detected object coordinates
@@ -191,12 +129,12 @@ class Perception():
                 box = np.int0(cv2.boxPoints(rect))
 
                 # Get ROI
-                self.roi = self.getROI(box)
+                self.roi = self.ut.getROI(box)
 
                 # Get the center of the object
-                img_centerx, img_centery = self.getCenter(rect, self.roi, self.size, self.square_length)
+                img_centerx, img_centery = self.ut.getCenter(rect, self.roi, self.size, self.square_length)
                 # Convert the center of the object to the world coordinate
-                center_x, center_y = self.convertCoordinate(img_centerx, img_centery, self.size)
+                center_x, center_y = self.ut.convertCoordinate(img_centerx, img_centery, self.size, self.image_center_distance)
                 angle = rect[2]
 
                 location[i] = [(center_x, center_y), angle]
