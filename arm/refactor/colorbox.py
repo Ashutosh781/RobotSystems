@@ -79,9 +79,6 @@ class ColorBox():
                 cv2.imshow('Processed', processed)
                 key = cv2.waitKey(1) & 0xFF
 
-                # Get all detected color boxes
-                detected_colors = list(locations.keys())
-
                 # Press 'q' to quit
                 if key == ord('q'):
                     print("Quitting...")
@@ -114,7 +111,7 @@ class ColorBox():
                     print(f"Target color set to {self.target_color}")
 
                 # Only proceed if color boxes are detected and 'c' is pressed
-                if len(detected_colors) > 0 and key == ord('c'):
+                if len(locations) > 0 and key == ord('c'):
                     print(f"Executing motion {self.mode}...")
 
                     # For Modes.ONE pick place only the target color box
@@ -124,16 +121,14 @@ class ColorBox():
                             print("Target color not set. Defaulting to Red")
                             self.target_color = 'red'
 
+                        # If target color is detected, pick and place it
                         if self.target_color in locations:
                             location = {self.target_color: locations[self.target_color]}
                             self.motion.pick_place(location)
 
                     # For Modes.SORT sort each detected color box one after other
                     elif self.mode == Modes.SORT:
-                        # Sort the detected colors one after other
-                        for color in detected_colors:
-                            location = {color: locations[color]}
-                            self.motion.pick_place(location)
+                        self.motion.sort(locations)
 
                     # For Modes.STACK stack all the detected color boxes
                     elif self.mode == Modes.STACK:

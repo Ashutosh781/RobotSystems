@@ -24,6 +24,7 @@ class Motion():
         'red':   (-15 + 0.5, 12 - 0.5, 1.5),
         'green': (-15 + 0.5, 6 - 0.5,  1.5),
         'blue':  (-15 + 0.5, 0 - 0.5,  1.5),
+        'stack': (-15 + 1, -7 - 0.5, 1.5),
         }
 
         # Parameters
@@ -60,7 +61,7 @@ class Motion():
         time.sleep(0.8)
 
         # Lower the arm
-        self.move_to(xyz=(xy[0], xy[1], 1.5), move_time=1000)
+        self.move_to(xyz=(xy[0], xy[1] + 0.5, 1.5), move_time=1000)
 
         # Close the gripper
         Board.setBusServoPulse(1, self.gripper_close, 500)
@@ -86,7 +87,7 @@ class Motion():
             color = 'red'
 
         # Move to top of the block home position
-        self.move_to(xyz=(self.block_xyz[color][0], self.block_xyz[color][1], self.block_xyz[color][2] + 5))
+        self.move_to(xyz=(self.block_xyz[color][0], self.block_xyz[color][1], self.block_xyz[color][2] + 12))
 
         # Rotate the gripper
         servo2_angle = self.ut.getAngle(self.block_xyz[color], -90)
@@ -105,7 +106,7 @@ class Motion():
         # Lift the arm up
         self.move_to(xyz=(self.block_xyz[color][0], self.block_xyz[color][1], 12), move_time=800)
 
-    def pick_place(self, location:dict):
+    def pick_place(self, location:dict, z_offset:float=0.25):
         """Pick the box at a specific coordinate and place it at the home coordinates defined by the color
 
         Args:
@@ -128,25 +129,41 @@ class Motion():
             return
 
         # Move to top of the box
-        self.move_to(xyz=(xy[0], xy[1], 10), move_time=1000)
+        self.move_to(xyz=(xy[0], xy[1] + 0.5, 10), move_time=1000)
 
-        # # Pick up the box
+        # Pick up the box
         self.pick(xy, angle)
 
         # Place the box
-        self.place(color, z_offset=0.25)
+        self.place(color, z_offset)
 
         # Home position
         self.home_position()
 
         return
 
+    def sort(self, locations:dict):
+        """Sort the boxes"""
+
+        # Pick and place each box
+        for color in locations.keys():
+            location = {color: locations[color]}
+            self.pick_place(location)
+
+        return
+
     def stack(self, locations:dict):
         """Stack the boxes"""
 
-        #TODO: Implement stacking
+        z_offset = 0.25
 
-        return NotImplementedError
+        # Pick and place each box with increasing z_offset
+        for color in locations.keys():
+            location = {'stack': locations[color]}
+            self.pick_place(location, z_offset)
+            z_offset += 2.5
+
+        return
 
 
 if __name__ == '__main__':
