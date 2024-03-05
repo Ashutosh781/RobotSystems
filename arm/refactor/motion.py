@@ -39,7 +39,7 @@ class Motion():
     def home_position(self):
         """Move the arm to the home position"""
 
-        Board.setBusServoPulse(1, self.gripper_close -50, 300)
+        Board.setBusServoPulse(1, self.gripper_close -150, 300)
         Board.setBusServoPulse(2, 500, 500)
         self.arm.setPitchRangeMoving((0, 10, 10), -30, -30, -90, 1500)
         time.sleep(0.5)
