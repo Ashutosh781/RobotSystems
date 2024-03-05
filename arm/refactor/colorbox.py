@@ -85,6 +85,7 @@ class ColorBox():
                 # Press 'q' to quit
                 if key == ord('q'):
                     print("Quitting...")
+                    self.motion.home_position()
                     break
 
                 # Change mode with key press

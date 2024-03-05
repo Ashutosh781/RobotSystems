@@ -44,24 +44,12 @@ class Perception():
         self.image_center_distance = 20
         self.square_length = 3
 
-        # Target colors
-        self._target_color = []
-
         # Camera instance
         self.camera = Camera()
         self.camera.camera_open()
 
         # Utils instance
         self.ut = Utils()
-
-    def setTargetColor(self, target_color:list):
-        """Set detection color"""
-
-        # Check if the color is valid
-        target_color = [i for i in target_color if i in self._possible_color]
-        self._target_color = target_color
-
-        return True
 
     def getAreaMaxContour(self, contours):
         """Find contour with the largest area
@@ -109,11 +97,8 @@ class Perception():
         # Dictionary to store the coordinates and angles of the detected objects
         location = {}
 
-        # If no color is set, detect all possible colors
-        if len(self._target_color) == 0:
-            self._target_color = self._possible_color
-
-        for i in self._target_color:
+        # Loop through all possible colors
+        for i in self._possible_color:
             # Mask the image
             frame_mask = cv2.inRange(frame_lab, self.color_range[i][0], self.color_range[i][1])
             # Opening and closing operations to remove noise

@@ -21,9 +21,9 @@ class Motion():
 
         # Coordinates for keeping back
         self.block_xyz = {
-        'red':   (-15 + 0.5, 12 - 0.5, 2.5),
-        'green': (-15 + 0.5, 6 - 0.5,  2.5),
-        'blue':  (-15 + 0.5, 0 - 0.5,  2.5),
+        'red':   (-15 + 0.5, 12 - 0.5, 1.5),
+        'green': (-15 + 0.5, 6 - 0.5,  1.5),
+        'blue':  (-15 + 0.5, 0 - 0.5,  1.5),
         }
 
         # Parameters
@@ -60,7 +60,7 @@ class Motion():
         time.sleep(0.8)
 
         # Lower the arm
-        self.move_to(xyz=(xy[0], xy[1], 2.5), move_time=1000)
+        self.move_to(xyz=(xy[0], xy[1], 1.5), move_time=1000)
 
         # Close the gripper
         Board.setBusServoPulse(1, self.gripper_close, 500)
@@ -73,8 +73,13 @@ class Motion():
         Board.setBusServoPulse(2, 500, 500)
         time.sleep(0.5)
 
-    def place(self, color:str):
-        """Place the block at coordinates defined by the color"""
+    def place(self, color:str, z_offset:float=0.5):
+        """Place the block at coordinates defined by the color
+
+        Args:
+            color (str): Color of the block for location
+            z_offset (float): Add Offset in height from the block home position
+        """
 
         # Default to red if color not in block_xyz
         if not color in self.block_xyz or color == '':
@@ -89,7 +94,9 @@ class Motion():
         time.sleep(0.5)
 
         # Place the block
-        self.move_to(xyz=(self.block_xyz[color]), move_time=1000)
+        place_location = list(self.block_xyz[color])
+        place_location[2] += z_offset
+        self.move_to(xyz=(place_location), move_time=1000)
 
         # Open the gripper
         Board.setBusServoPulse(1, self.gripper_close - 200, 500)
@@ -127,7 +134,7 @@ class Motion():
         self.pick(xy, angle)
 
         # Place the box
-        self.place(color)
+        self.place(color, z_offset=0.25)
 
         # Home position
         self.home_position()
